@@ -11,6 +11,7 @@ data = {
     age: 21,
     occupation: ['Student', 'Software Developer'],
     learning_goals: ['Learn how to effectively use CSS', 'Learn how to animate using CSS', 'Be more creative in designing'],
+    location: 'Purmerend, The Netherlands'
 }
 
 // Define API endpoints
@@ -47,6 +48,10 @@ app.get('/api/learning_goals', (req, res) => {
 })
 
 
+// Endpoint to get location
+app.get('/api/location', (req, res) => {
+    res.json({ location: data.location });
+})
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`)
