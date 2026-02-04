@@ -144,6 +144,19 @@ async function loadCourse() {
     }
 }
 
+async function loadLanguages() {
+    try {
+        const res = await fetch(apiUrl + "/languages");
+        if (!res.ok) throw new Error("Network response was not ok");
+        const data = await res.json();
+        apiData.languages = Array.isArray(data.languages) ? data.languages : [];
+        setPlaceholdersList('languages-list', apiData.languages);
+    } catch (err) {
+        console.error(err);
+        apiData.languages = null;
+    }
+}
+
 // Display data in DOM when section unlocks
 function displaySectionData(sectionId) {
     if (sectionId === 'name') {
@@ -200,6 +213,18 @@ function displaySectionData(sectionId) {
         } else {
             ul.textContent = "No learning goals found.";
         }
+    } else if (sectionId === 'languages-list') {
+        const ul = document.getElementById("languages-list");
+        ul.innerHTML = "";
+        if (apiData.languages && apiData.languages.length > 0) {
+            apiData.languages.forEach(l => {
+                const li = document.createElement("li");
+                li.textContent = l;
+                ul.appendChild(li);
+            });
+        } else {
+            ul.textContent = "No languages found.";
+        }
     }
 }
 
@@ -214,6 +239,7 @@ if (document.readyState === "loading") {
         loadOccupation();
         loadLearningGoals();
         loadCourse();
+        loadLanguages();
     });
 } else {
     loadAPI();
@@ -224,4 +250,5 @@ if (document.readyState === "loading") {
     loadOccupation();
     loadLearningGoals();
     loadCourse();
+    loadLanguages();
 }

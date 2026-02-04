@@ -28,7 +28,8 @@ const UNLOCKS = [
     { score: 400, section: 'hobbies-list' },
     { score: 800, section: 'course-list' },
     { score: 1600, section: 'occupation-list' },
-    { score: 3200, section: 'learning-goals' }
+    { score: 3200, section: 'learning-goals' },
+    { score: 6400, section: 'languages-list' }
 ];
 
 let unlockedSections = new Set();
