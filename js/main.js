@@ -17,7 +17,7 @@ async function loadName() {
         if (!res.ok) throw new Error("Network response was not ok");
         const data = await res.json();
         const nameElement = document.getElementById("name");
-        nameElement.textContent = `Name: ${data.name}`;
+        nameElement.textContent = `${data.name}`;
     } catch (err) {
         console.error(err);
         const nameElement = document.getElementById("name");
@@ -52,7 +52,7 @@ async function loadAge() {
         const res = await fetch(apiUrl + "/age");
         if (!res.ok) throw new Error("Network response was not ok");
         const data = await res.json();
-        document.getElementById("age").textContent = `Age: ${data.age}`;
+        document.getElementById("age").textContent = `${data.age}`;
     } catch (err) {
         console.error(err);
         document.getElementById("age").textContent = "Failed to load age.";
@@ -64,7 +64,7 @@ async function loadLocation() {
         const res = await fetch(apiUrl + "/location");
         if (!res.ok) throw new Error("Network response was not ok");
         const data = await res.json();
-        document.getElementById("location").textContent = `Location: ${data.location}`;
+        document.getElementById("location").textContent = `${data.location}`;
     } catch (err) {
         console.error(err);
         document.getElementById("location").textContent = "Failed to load location.";
@@ -115,6 +115,28 @@ async function loadLearningGoals() {
     }
 }
 
+async function loadCourse() {
+    try {
+        const res = await fetch(apiUrl + "/course");
+        if (!res.ok) throw new Error("Network response was not ok");
+        const data = await res.json();
+        const ul = document.getElementById("course-list");
+        ul.innerHTML = "";
+        if (Array.isArray(data.course)) {
+            data.course.forEach(c => {
+                const li = document.createElement("li");
+                li.textContent = c;
+                ul.appendChild(li);
+            });
+        } else {
+            ul.textContent = "No course found.";
+        }
+    } catch (err) {
+        console.error(err);
+        document.getElementById("course-list").textContent = "Failed to load course.";
+    }
+}
+
 // Load on page ready
 if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", () => {
@@ -125,6 +147,7 @@ if (document.readyState === "loading") {
         loadLocation();
         loadOccupation();
         loadLearningGoals();
+        loadCourse();
     });
 } else {
     loadAPI();
@@ -134,4 +157,5 @@ if (document.readyState === "loading") {
     loadLocation();
     loadOccupation();
     loadLearningGoals();
+    loadCourse();
 }

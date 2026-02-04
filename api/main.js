@@ -11,7 +11,8 @@ data = {
     age: 21,
     occupation: ['Student', 'Software Developer'],
     learning_goals: ['Learn how to effectively use CSS', 'Learn how to animate using CSS', 'Be more creative in designing'],
-    location: 'Purmerend, The Netherlands'
+    location: 'Purmerend, The Netherlands',
+    course: ['MBO Software Development', 'HBO Game Development', "HBO-ICT studio App development"]
 }
 
 // Define API endpoints
@@ -51,6 +52,11 @@ app.get('/api/learning_goals', (req, res) => {
 // Endpoint to get location
 app.get('/api/location', (req, res) => {
     res.json({ location: data.location });
+})
+
+// Endpoint to get course
+app.get('/api/course', (req, res) => {
+    res.json({ course: data.course });
 })
 
 app.listen(port, () => {

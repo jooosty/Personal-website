@@ -5,111 +5,66 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <link rel="stylesheet" href="css/styles.css" />
-    <title>My Base Website</title>
-    <style>
-        .tetris {
-            margin-top: 40px;
-            text-align: center;
-        }
-        
-        .tetris h1 {
-            margin-bottom: 20px;
-            color: #173a5e;
-        }
-        
-        #tetris {
-            border: 3px solid #173a5e;
-            border-radius: 8px;
-            display: inline-block;
-            background: #000;
-        }
-        
-        .score-display {
-            margin: 20px 0;
-            font-size: 24px;
-            font-weight: bold;
-            color: #0b3c6b;
-        }
-        
-        .controls {
-            margin-top: 20px;
-            padding: 20px;
-            background: #f4f8ff;
-            border-radius: 8px;
-            display: inline-block;
-        }
-        
-        .controls p {
-            font-weight: bold;
-            margin-bottom: 10px;
-            color: #173a5e;
-        }
-        
-        .controls ul {
-            list-style: none;
-            padding: 0;
-            text-align: left;
-        }
-        
-        .controls li {
-            padding: 5px 0;
-            color: #08304a;
-        }
-    </style>
+    <title>My Base Website - Play to Unlock!</title>
 </head>
 <body>
 
     <header>
-        <h1>Welcome to My Website</h1>
+        <h1>Play Tetris to Unlock My Info!</h1>
     </header>
+    
     <main>
-        <div class="about-me">
-            <h1>About Me</h1>
-            <p id="name"></p>
-            <p id="age"></p>
-            <p id="location"></p>
-            <div class="hobbies">
-            <h2>My Hobbies</h2>
-            <ul id="hobbies-list">
-            </ul>
-            </div>
-            <h2>My Learning Goals</h2>
-            <ul id="learning-goals">
-            </ul>
-            <h2>My Occupation</h2>
-            <ul id="occupation-list">
-            </ul>
-        </div>
-
-
-        <div class="tetris">
-            <h1>Tetris Game</h1>
+        <!-- Tetris Game Section -->
+        <div class="game-section">
+            <h1>Tetris Challenge</h1>
             <canvas id="tetris"></canvas>
             <div class="score-display">
                 <p>Score: <span id="score">0</span></p>
             </div>
-            
-            <div class="controls">
-                <p>Controls:</p>
-                <ul>
-                    <li>Left Arrow: Move Left</li>
-                    <li>Right Arrow: Move Right</li>
-                    <li>Up Arrow: Rotate</li>
-                    <li>Down Arrow: Soft Drop</li>
-                    <li>Spacebar: Hard Drop</li>
-                    <li>Press SPACE or ENTER to start!</li>
-                    <li>Press R to reset</li>
-                </ul>
+        </div>
+        
+        <!-- About Me Section -->
+        <div class="about-me">
+            <h1>About Me</h1>
+            <div id="section-name">
+                <h2>Name <span class="unlock-badge" data-section="name">Unlock at -- pts</span></h2>
+                <p id="name" class="locked">???</p>
             </div>
 
-        </div>
+            <div id="section-age">
+                <h2>Age <span class="unlock-badge" data-section="age">Unlock at -- pts</span></h2>
+                <p id="age" class="locked">???</p>
+            </div>
 
+            <div id="section-location">
+                <h2>Location <span class="unlock-badge" data-section="location">Unlock at -- pts</span></h2>
+                <p id="location" class="locked">???</p>
+            </div>
 
+            <div id="section-hobbies">
+                <h2>My Hobbies <span class="unlock-badge" data-section="hobbies-list">Unlock at -- pts</span></h2>
+                <ul id="hobbies-list" class="locked"></ul>
+            </div>
 
-        <script src="js/main.js"></script>
-        <script src="js/tetris.js"></script>
-    </main>
+            <div id="section-course">
+                <h2>My Course <span class="unlock-badge" data-section="course-list">Unlock at -- pts</span></h2>
+                <ul id="course-list" class="locked"></ul>
+            </div>
 
+            <div id="section-occupation">
+                <h2>My Occupation <span class="unlock-badge" data-section="occupation-list">Unlock at -- pts</span></h2>
+                <ul id="occupation-list" class="locked"></ul>
+            </div>
+
+            <div id="section-goals">
+                <h2>My Learning Goals <span class="unlock-badge" data-section="learning-goals">Unlock at -- pts</span></h2>
+                <ul id="learning-goals" class="locked"></ul>
+            </div>
+            </div>
+            </main>
+
+    <script src="js/main.js"></script>
+    <script src="js/tetris.js"></script>
 
 </body>
 </html>
