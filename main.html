@@ -6,6 +6,56 @@
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <link rel="stylesheet" href="css/styles.css" />
     <title>My Base Website</title>
+    <style>
+        .tetris {
+            margin-top: 40px;
+            text-align: center;
+        }
+        
+        .tetris h1 {
+            margin-bottom: 20px;
+            color: #173a5e;
+        }
+        
+        #tetris {
+            border: 3px solid #173a5e;
+            border-radius: 8px;
+            display: inline-block;
+            background: #000;
+        }
+        
+        .score-display {
+            margin: 20px 0;
+            font-size: 24px;
+            font-weight: bold;
+            color: #0b3c6b;
+        }
+        
+        .controls {
+            margin-top: 20px;
+            padding: 20px;
+            background: #f4f8ff;
+            border-radius: 8px;
+            display: inline-block;
+        }
+        
+        .controls p {
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #173a5e;
+        }
+        
+        .controls ul {
+            list-style: none;
+            padding: 0;
+            text-align: left;
+        }
+        
+        .controls li {
+            padding: 5px 0;
+            color: #08304a;
+        }
+    </style>
 </head>
 <body>
 
@@ -32,8 +82,32 @@
         </div>
 
 
+        <div class="tetris">
+            <h1>Tetris Game</h1>
+            <canvas id="tetris"></canvas>
+            <div class="score-display">
+                <p>Score: <span id="score">0</span></p>
+            </div>
+            
+            <div class="controls">
+                <p>Controls:</p>
+                <ul>
+                    <li>Left Arrow: Move Left</li>
+                    <li>Right Arrow: Move Right</li>
+                    <li>Up Arrow: Rotate</li>
+                    <li>Down Arrow: Soft Drop</li>
+                    <li>Spacebar: Hard Drop</li>
+                    <li>Press SPACE or ENTER to start!</li>
+                    <li>Press R to reset</li>
+                </ul>
+            </div>
+
+        </div>
+
+
 
         <script src="js/main.js"></script>
+        <script src="js/tetris.js"></script>
     </main>
 
 
