@@ -50,6 +50,13 @@ updateUnlockBadges();
 // Create the game board
 const board = Array.from({ length: ROWS }, () => Array(COLS).fill(0));
 
+// I is Long shape
+// O is Square shape
+// T is T shape
+// S is S shape
+// Z is Reverse S shape
+// J is Left L shape
+// L is Right L shape
 // Tetromino shapes
 const SHAPES = {
     I: [[1, 1, 1, 1]],
