@@ -65,7 +65,8 @@ main {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 30px;
-    padding: 30px;
+    padding-left: 30px;
+    padding-right: 30px;
 }
 
 /* Game Section */
@@ -114,7 +115,10 @@ main {
     padding: 30px;
     overflow-y: auto;
     max-height: 80vh;
-}
+    scrollbar-width: thin;
+    scrollbar-color: rgba(0, 240, 240, 0.6) rgba(0, 0, 0, 0.3);
+    }
+
 
 .about-me h1 {
     color: #00f0f0;

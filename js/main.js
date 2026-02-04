@@ -48,7 +48,6 @@ async function loadAPI() {
         const res = await fetch(apiUrl + "/data");
         if (!res.ok) throw new Error("Network response was not ok");
         const data = await res.json();
-        console.log("API Data:", data);
     } catch (err) {
         console.error("Failed to load API data:", err);
     }
