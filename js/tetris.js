@@ -163,11 +163,16 @@ function drawBlock(x, y, color) {
 
 // Draw the board
 function drawBoard() {
-    ctx.fillStyle = '#000';
+    // Get theme-aware colors
+    const isLightMode = document.body.classList.contains('light-mode');
+    const bgColor = isLightMode ? '#fff' : '#000';
+    const gridColor = isLightMode ? '#ddd' : '#333';
+    
+    ctx.fillStyle = bgColor;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     
     // Draw grid lines
-    ctx.strokeStyle = '#333';
+    ctx.strokeStyle = gridColor;
     ctx.lineWidth = 1;
     
     // Vertical lines
@@ -358,8 +363,13 @@ function draw() {
 
 // Draw game over screen
 function drawGameOver() {
+    // Get theme-aware colors
+    const isLightMode = document.body.classList.contains('light-mode');
+    const overlayColor = isLightMode ? 'rgba(255, 255, 255, 0.9)' : 'rgba(0, 0, 0, 0.8)';
+    const textColor = isLightMode ? '#1a1a1a' : '#ffffff';
+    
     // Semi-transparent overlay
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
+    ctx.fillStyle = overlayColor;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     
     // Game Over title
@@ -369,7 +379,7 @@ function drawGameOver() {
     ctx.fillText('GAME OVER', canvas.width / 2, canvas.height / 2 - 60);
     
     // Final score
-    ctx.fillStyle = '#ffffff';
+    ctx.fillStyle = textColor;
     ctx.font = '24px Arial';
     ctx.fillText('Final Score: ' + score, canvas.width / 2, canvas.height / 2 - 10);
     
@@ -379,7 +389,7 @@ function drawGameOver() {
     
     // Restart instruction
     ctx.font = '16px Arial';
-    ctx.fillStyle = '#00ff00';
+    ctx.fillStyle = isLightMode ? '#00838f' : '#00ff00';
     ctx.fillText('Press SPACE to restart', canvas.width / 2, canvas.height / 2 + 70);
 }
 
@@ -464,12 +474,33 @@ document.addEventListener('keydown', (e) => {
 // Initialize
 resetGame();
 
-// Display instructions
-ctx.fillStyle = '#fff';
-ctx.font = '18px Arial';
-ctx.textAlign = 'center';
-ctx.fillText('Press SPACE or ENTER', canvas.width / 2, canvas.height / 2 - 15);
-ctx.fillText('to start playing and', canvas.width / 2, canvas.height / 2 + 10);
-ctx.fillText('unlock my info!', canvas.width / 2, canvas.height / 2 + 35);
-ctx.fillText('Use Arrow Keys to Move/Rotate', canvas.width / 2, canvas.height / 2 + 60);
-ctx.fillText('and SPACE to Hard Drop', canvas.width / 2, canvas.height / 2 + 85);
+// Display instructions with theme awareness
+function displayInstructions() {
+    const isLightMode = document.body.classList.contains('light-mode');
+    const textColor = isLightMode ? '#1a1a1a' : '#fff';
+    
+    ctx.fillStyle = textColor;
+    ctx.font = '18px Arial';
+    ctx.textAlign = 'center';
+    ctx.fillText('Press SPACE or ENTER', canvas.width / 2, canvas.height / 2 - 15);
+    ctx.fillText('to start playing and', canvas.width / 2, canvas.height / 2 + 10);
+    ctx.fillText('unlock my info!', canvas.width / 2, canvas.height / 2 + 35);
+    ctx.fillText('Use Arrow Keys to Move/Rotate', canvas.width / 2, canvas.height / 2 + 60);
+    ctx.fillText('and SPACE to Hard Drop', canvas.width / 2, canvas.height / 2 + 85);
+}
+
+displayInstructions();
+
+// Redraw instructions when theme changes
+if (typeof MutationObserver !== 'undefined') {
+    const observer = new MutationObserver((mutations) => {
+        mutations.forEach((mutation) => {
+            if (mutation.attributeName === 'class' && !gameStarted) {
+                drawBoard();
+                displayInstructions();
+            }
+        });
+    });
+    
+    observer.observe(document.body, { attributes: true });
+}

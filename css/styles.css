@@ -1,3 +1,47 @@
+:root {
+    /* Dark theme (default) */
+    --bg-gradient-start: #0f0c29;
+    --bg-gradient-mid: #302b63;
+    --bg-gradient-end: #24243e;
+    --text-primary: #fff;
+    --text-secondary: #fff;
+    --header-bg: rgba(255, 255, 255, 0.1);
+    --header-border: rgba(255, 255, 255, 0.2);
+    --section-bg: rgba(255, 255, 255, 0.05);
+    --section-border: rgba(255, 255, 255, 0.2);
+    --accent-color: #00f0f0;
+    --accent-glow: rgba(0, 240, 240, 0.5);
+    --canvas-bg: #000;
+    --grid-color: #333;
+    --badge-bg: rgba(0, 240, 240, 0.2);
+    --badge-border: #00f0f0;
+    --list-item-bg: rgba(0, 240, 240, 0.1);
+    --list-item-border: rgba(0, 240, 240, 0.3);
+    --score-bg: rgba(255, 255, 255, 0.1);
+}
+
+body.light-mode {
+    /* Light theme */
+    --bg-gradient-start: #e0f7fa;
+    --bg-gradient-mid: #b2ebf2;
+    --bg-gradient-end: #80deea;
+    --text-primary: #1a1a1a;
+    --text-secondary: #2c2c2c;
+    --header-bg: rgba(255, 255, 255, 0.8);
+    --header-border: rgba(0, 0, 0, 0.1);
+    --section-bg: rgba(255, 255, 255, 0.7);
+    --section-border: rgba(0, 0, 0, 0.15);
+    --accent-color: #00838f;
+    --accent-glow: rgba(0, 131, 143, 0.5);
+    --canvas-bg: #fff;
+    --grid-color: #ddd;
+    --badge-bg: rgba(0, 131, 143, 0.15);
+    --badge-border: #00838f;
+    --list-item-bg: rgba(0, 131, 143, 0.08);
+    --list-item-border: rgba(0, 131, 143, 0.25);
+    --score-bg: rgba(255, 255, 255, 0.8);
+}
+
 * {
     margin: 0;
     padding: 0;
@@ -7,10 +51,11 @@
 body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
     line-height: 1.6;
-    color: #333;
-    background: linear-gradient(180deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+    color: var(--text-primary);
+    background: linear-gradient(180deg, var(--bg-gradient-start) 0%, var(--bg-gradient-mid) 50%, var(--bg-gradient-end) 100%);
     min-height: 100vh;
     padding: 24px;
+    transition: background 0.3s ease, color 0.3s ease;
 }
 
 a {
@@ -44,16 +89,51 @@ header {
     max-width: 1400px;
     margin: 0 auto 18px;
     padding: 18px 22px;
-    background: rgba(255,255,255,0.1);
+    background: var(--header-bg);
     backdrop-filter: blur(10px);
-    border: 1px solid rgba(255,255,255,0.2);
+    border: 1px solid var(--header-border);
     border-radius: 12px;
+    position: relative;
+    transition: background 0.3s ease, border 0.3s ease;
 }
 
 header h1 {
     font-size: 1.6rem;
-    color: #fff;
+    color: var(--text-primary);
     text-align: center;
+    transition: color 0.3s ease;
+}
+
+/* Theme Toggle Button */
+.theme-toggle {
+    position: absolute;
+    right: 22px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: var(--badge-bg);
+    border: 2px solid var(--badge-border);
+    border-radius: 50%;
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.theme-toggle:hover {
+    transform: translateY(-50%) scale(1.1);
+    box-shadow: 0 0 20px var(--accent-glow);
+}
+
+.theme-icon {
+    font-size: 24px;
+    transition: transform 0.3s ease;
+}
+
+.theme-toggle:active .theme-icon {
+    transform: rotate(180deg);
 }
 
 /* Main layout */
@@ -78,67 +158,75 @@ main {
 }
 
 .game-section h1 {
-    color: #fff;
+    color: var(--accent-color);
     font-size: 2rem;
     margin: 0;
-    text-shadow: 0 0 20px rgba(0, 240, 240, 0.5);
+    text-shadow: 0 0 20px var(--accent-glow);
+    transition: color 0.3s ease;
 }
 
 #tetris {
-    border: 4px solid #00f0f0;
+    border: 4px solid var(--accent-color);
     border-radius: 8px;
-    box-shadow: 0 0 30px rgba(0, 240, 240, 0.3);
+    box-shadow: 0 0 30px var(--accent-glow);
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
 .score-display {
-    background: rgba(255,255,255,0.1);
+    background: var(--score-bg);
     backdrop-filter: blur(10px);
     padding: 20px 40px;
     border-radius: 12px;
-    border: 2px solid rgba(0, 240, 240, 0.3);
+    border: 2px solid var(--list-item-border);
+    transition: background 0.3s ease, border 0.3s ease;
 }
 
 .score-display p {
-    color: #fff;
+    color: var(--text-primary);
     font-size: 28px;
     font-weight: bold;
     margin: 0;
-    text-shadow: 0 0 10px rgba(0, 240, 240, 0.5);
+    text-shadow: 0 0 10px var(--accent-glow);
+    transition: color 0.3s ease;
 }
 
 /* About Me Section */
 .about-me {
-    background: rgba(255,255,255,0.05);
+    background: var(--section-bg);
     backdrop-filter: blur(10px);
-    border: 2px solid rgba(255,255,255,0.2);
+    border: 2px solid var(--section-border);
     border-radius: 12px;
     padding: 30px;
     overflow-y: auto;
     max-height: 80vh;
-    scrollbar-width: thin;
-    scrollbar-color: rgba(0, 240, 240, 0.6) rgba(0, 0, 0, 0.3);
+    scrollbar-width: auto;
+    scrollbar-color: var(--accent-color) rgba(0, 0, 0, 0.3);
+    transition: background 0.3s ease, border 0.3s ease;
     }
 
 
 .about-me h1 {
-    color: #00f0f0;
+    color: var(--accent-color);
     text-align: center;
     margin-bottom: 30px;
     font-size: 2rem;
-    text-shadow: 0 0 20px rgba(0, 240, 240, 0.5);
+    text-shadow: 0 0 20px var(--accent-glow);
+    transition: color 0.3s ease;
 }
 
 .about-me h2 {
-    color: #fff;
+    color: var(--text-primary);
     margin-top: 25px;
     margin-bottom: 15px;
     font-size: 1.4rem;
+    transition: color 0.3s ease;
 }
 
 .about-me p {
-    color: #fff;
+    color: var(--text-secondary);
     font-size: 1.1rem;
     margin-bottom: 10px;
+    transition: color 0.3s ease;
 }
 
 .about-me ul {
@@ -150,13 +238,14 @@ main {
 }
 
 .about-me li {
-    background: rgba(0, 240, 240, 0.1);
-    border: 1px solid rgba(0, 240, 240, 0.3);
+    background: var(--list-item-bg);
+    border: 1px solid var(--list-item-border);
     padding: 12px 16px;
     margin-bottom: 10px;
     border-radius: 8px;
-    color: #fff;
+    color: var(--text-primary);
     font-weight: 500;
+    transition: background 0.3s ease, border 0.3s ease, color 0.3s ease;
 }
 
 /* Locked/Hidden State */
@@ -186,23 +275,24 @@ main {
 
 .unlock-badge {
     display: inline-block;
-    background: rgba(0, 240, 240, 0.2);
-    border: 2px solid #00f0f0;
-    color: #00f0f0;
+    background: var(--badge-bg);
+    border: 2px solid var(--badge-border);
+    color: var(--badge-border);
     padding: 8px 16px;
     border-radius: 20px;
     font-size: 0.9rem;
     font-weight: bold;
     margin-left: 10px;
     animation: pulse 2s infinite;
+    transition: background 0.3s ease, border 0.3s ease, color 0.3s ease;
 }
 
 @keyframes pulse {
     0%, 100% {
-        box-shadow: 0 0 10px rgba(0, 240, 240, 0.5);
+        box-shadow: 0 0 10px var(--accent-glow);
     }
     50% {
-        box-shadow: 0 0 20px rgba(0, 240, 240, 0.8);
+        box-shadow: 0 0 20px var(--accent-glow);
     }
 }
 
