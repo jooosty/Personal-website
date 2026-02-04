@@ -97,6 +97,11 @@ function unlockSection(sectionId) {
         section.classList.remove('locked');
         section.classList.add('unlocked');
         
+        // Display the data when unlocking
+        if (typeof displaySectionData === 'function') {
+            displaySectionData(sectionId);
+        }
+        
         // Remove the unlock badge
         const badge = document.querySelector(`.unlock-badge[data-section="${sectionId}"]`);
         if (badge) {
