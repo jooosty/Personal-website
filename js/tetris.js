@@ -12,6 +12,7 @@ const mobileStartButton = document.getElementById('mobile-start');
 const pauseToggleButton = document.getElementById('pause-toggle');
 const unlockAllButton = document.getElementById('unlock-all');
 const tetrisAudio = document.getElementById('tetris-audio');
+const lineClearAudio = document.getElementById('tetris-line-clear');
 
 // Set canvas size
 const BLOCK_SIZE = 30;
@@ -514,6 +515,10 @@ function clearLines() {
     if (linesCleared > 0) {
         const points = linesCleared * 100 * linesCleared;
         updateScore(points);
+        if (lineClearAudio) {
+            lineClearAudio.currentTime = 0;
+            lineClearAudio.play().catch(() => {});
+        }
     }
 }
 
