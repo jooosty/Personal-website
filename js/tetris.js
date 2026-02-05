@@ -36,6 +36,28 @@ const UNLOCKS = [
     { score: 6400, section: 'languages-list' }
 ];
 
+// Set drop interval based on difficulty
+function updateDropInterval() {
+    const previewCount = getPreviewCountFromDifficulty();
+    switch (previewCount) {
+        case 5: // Difficulty 1
+            dropInterval = 1400;
+            break;
+        case 4: // Difficulty 2
+            dropInterval = 1200;
+            break;
+        case 3: // Difficulty 3
+            dropInterval = 1000;
+            break;
+        case 2: // Difficulty 4
+            dropInterval = 800;
+            break;
+        case 1: // Difficulty 5
+            dropInterval = 600;
+            break;
+    }
+}
+
 let unlockedSections = new Set();
 
 // Set unlock badge text from UNLOCKS
@@ -54,6 +76,7 @@ updateUnlockBadges();
 if (difficultyInput) {
     difficultyInput.addEventListener('input', () => {
         applyPreviewSettings();
+        updateDropInterval();
     });
 }
 
