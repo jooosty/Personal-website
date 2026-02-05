@@ -224,8 +224,20 @@ let scanIndex = 0;
 let scanTimeoutId = null;
 let zHoldTimer = null;
 let zTriggered = false;
+let scrollLockTimeoutId = null;
+
+function setScrollLock(durationMs) {
+    document.body.classList.add('no-scroll');
+    if (scrollLockTimeoutId) {
+        clearTimeout(scrollLockTimeoutId);
+    }
+    scrollLockTimeoutId = setTimeout(() => {
+        document.body.classList.remove('no-scroll');
+    }, durationMs);
+}
 
 function triggerBarrelRoll() {
+    setScrollLock(1300);
     document.body.classList.remove('barrel-roll');
     void document.body.offsetWidth;
     document.body.classList.add('barrel-roll');
@@ -255,6 +267,7 @@ function handleRollSequence(key) {
 }
 
 function triggerMeteorShower() {
+    setScrollLock(5000);
     const layer = document.createElement('div');
     layer.className = 'meteor-layer';
 
@@ -282,6 +295,7 @@ function triggerMeteorShower() {
 }
 
 function triggerTetrisConfetti() {
+    setScrollLock(4500);
     const layer = document.createElement('div');
     layer.className = 'tetris-confetti-layer';
 
@@ -313,6 +327,7 @@ function triggerTetrisConfetti() {
 }
 
 function triggerScanlineSweep() {
+    setScrollLock(18000);
     const layer = document.createElement('div');
     layer.className = 'scanline-layer';
     const line = document.createElement('div');
@@ -322,7 +337,7 @@ function triggerScanlineSweep() {
 
     setTimeout(() => {
         layer.remove();
-    }, 1400);
+    }, 18200);
 }
 
 function triggerSlowmoPulse() {

@@ -56,13 +56,10 @@ body {
     min-height: 100vh;
     padding: 24px;
     transition: background 0.3s ease, color 0.3s ease;
-    overflow: hidden;
 }
 
-@media (max-width: 768px) {
-    body {
-        overflow: auto;
-    }
+body.no-scroll {
+    overflow: hidden;
 }
 body.barrel-roll {
     animation: barrel-roll 1.2s ease-in-out;
