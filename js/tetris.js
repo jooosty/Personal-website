@@ -24,6 +24,14 @@ let dropCounter = 0;
 let dropInterval = 1000;
 let lastTime = 0;
 
+if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|BB|PlayBook|IEMobile|Windows Phone|Kindle|Silk|Opera Mini/i.test(navigator.userAgent)) {
+    // show hand-held test div
+    const testDiv = document.querySelector('.hand-held-test');
+    if (testDiv) {
+        testDiv.removeAttribute('hidden');
+    }
+}
+
 // Unlock thresholds
 const UNLOCKS = [
     { score: 0, section: 'name' },
