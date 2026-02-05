@@ -25,3 +25,31 @@
 - Adding difficulty levels to the tetris game
 - Adding sound effects to the tetris game
 - Adding difficulty to unlock more sections based on score
+
+
+## 5 february 2026
+
+### Things i did today
+
+- Added a difficulty slider to the tetris game
+- Added audio
+- Added hand held verion
+- Added some fun easter eggs
+- Changed api from own to school api
+
+### time it took
+
+- 1,5 hours
+- 1 hour
+- 3 hours
+- 45 minutes
+- 15 minutes
+
+### What i learned
+
+- How to make animations with css
+- How to make a site both work on desktop and mobile
+
+### What I want to do next
+
+- Adding a second game
