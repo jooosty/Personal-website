@@ -179,8 +179,9 @@ main {
 .mobile-start {
     position: absolute;
     left: 50%;
-    bottom: 12px;
-    transform: translateX(-50%);
+    top: 50%;
+    bottom: auto;
+    transform: translate(-50%, -50%);
     padding: 10px 18px;
     border-radius: 999px;
     border: 2px solid var(--accent-color);
@@ -195,7 +196,7 @@ main {
 }
 
 .mobile-start:active {
-    transform: translateX(-50%) scale(0.96);
+    transform: translate(-50%, -50%) scale(0.96);
     box-shadow: 0 0 10px var(--accent-glow);
 }
 .tetris-stage {
@@ -241,31 +242,31 @@ main {
 }
 .score-display {
     display: none;
-    }
+}
     
-    .mobile-controls {
-        display: none;
-        position: absolute;
-            left: 50%;
-            bottom: 12px;
-            transform: translateX(-50%);
-        grid-template-columns: repeat(3, minmax(80px, 1fr));
-        gap: 12px;
-        width: calc(100% - 24px);
-            max-width: 320px;
-            padding: 10px;
-            border-radius: 12px;
-            background: transparent;
-            backdrop-filter: none;
-            border: none;
-            z-index: 2;
-    }
+.mobile-controls {
+    display: none;
+    position: absolute;
+    left: 50%;
+    bottom: 12px;
+    transform: translateX(-50%);
+    grid-template-columns: repeat(3, minmax(80px, 1fr));
+    gap: 12px;
+    width: calc(100% - 24px);
+    max-width: 320px;
+    padding: 10px;
+    border-radius: 12px;
+    background: transparent;
+    backdrop-filter: none;
+    border: none;
+    z-index: 2;
+}
     
-                                                                                                                                                                                                                                                                .mobile-controls .control-btn {
-                                                                                                                                                                                                                                                                    background: transparent;
+.mobile-controls .control-btn {
+    background: transparent;
         color: var(--text-primary);
         border: none;
-        border-radius: 14px;
+    border-radius: 14px;
             padding: 12px 14px;
         font-size: 1rem;
         font-weight: 600;
@@ -281,6 +282,7 @@ main {
 .control-drop {
     grid-column: 1 / -1;
 }
+
 /* difficulty slider */
 /* https://stackoverflow.com/questions/18389224/how-to-style-html5-range-input-to-have-different-color-before-and-after-slider */
 #difficulty {
@@ -485,7 +487,7 @@ main {
             justify-content: center;
         }
         .tetris-difficulty {
-            bottom: 64px;
+            bottom: 12px;
         }
 }
 @media (max-width: 520px) {
