@@ -10,6 +10,7 @@ const previewList = document.getElementById('next-preview-list');
 const difficultyWrapper = document.querySelector('.tetris-difficulty');
 const mobileStartButton = document.getElementById('mobile-start');
 const pauseToggleButton = document.getElementById('pause-toggle');
+const unlockAllButton = document.getElementById('unlock-all');
 
 // Set canvas size
 const BLOCK_SIZE = 30;
@@ -191,6 +192,12 @@ function updateScore(points) {
     score += points;
     scoreElement.textContent = score;
     checkUnlocks();
+}
+
+function unlockAllSections() {
+    UNLOCKS.forEach((unlock) => {
+        unlockSection(unlock.section);
+    });
 }
 
 // Create a new piece
@@ -857,6 +864,12 @@ if (mobileStartButton) {
 if (pauseToggleButton) {
     pauseToggleButton.addEventListener('click', () => {
         togglePause();
+    });
+}
+
+if (unlockAllButton) {
+    unlockAllButton.addEventListener('click', () => {
+        unlockAllSections();
     });
 }
 

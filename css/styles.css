@@ -84,6 +84,38 @@ button {
     font-family: inherit;
 }
 
+.unlock-all-area {
+    position: fixed;
+    right: 10px;
+    bottom: 10px;
+    width: 72px;
+    height: 48px;
+    z-index: 5;
+}
+
+.unlock-all {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.45);
+    border: 1px dashed var(--badge-border);
+    color: var(--text-primary);
+    padding: 6px 10px;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    letter-spacing: 0.2px;
+    opacity: 0;
+    transform: translateY(6px);
+    pointer-events: none;
+    transition: opacity 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.unlock-all-area:hover .unlock-all {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+    box-shadow: 0 0 12px var(--accent-glow);
+}
 /* Header */
 header {
     max-width: 1400px;
