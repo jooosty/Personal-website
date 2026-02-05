@@ -218,23 +218,37 @@ main {
     transition: border-color 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
 }
 .score-display {
-    background: var(--score-bg);
-    backdrop-filter: blur(10px);
-    padding: 20px 40px;
+    display: none;
+    }
+    
+    .mobile-controls {
+        display: none;
+        grid-template-columns: repeat(3, minmax(80px, 1fr));
+        gap: 12px;
+        width: min(360px, 100%);
+        margin-top: 12px;
+    }
+    
+    .control-btn {
+        background: var(--section-bg);
+        color: var(--text-primary);
+        border: 2px solid var(--section-border);
     border-radius: 12px;
-    border: 2px solid var(--list-item-border);
-    transition: background 0.3s ease, border 0.3s ease;
+    padding: 12px 14px;
+        font-size: 1rem;
+        font-weight: 600;
+        text-align: center;
+        transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.3s ease, border 0.3s ease;
 }
 
-.score-display p {
-    color: var(--text-primary);
-    font-size: 28px;
-    font-weight: bold;
-    margin: 0;
-    text-shadow: 0 0 10px var(--accent-glow);
-    transition: color 0.3s ease;
+.control-btn:active {
+    transform: scale(0.96);
+    box-shadow: 0 0 12px var(--accent-glow);
 }
 
+.control-drop {
+    grid-column: 1 / -1;
+}
 /* difficulty slider */
 /* https://stackoverflow.com/questions/18389224/how-to-style-html5-range-input-to-have-different-color-before-and-after-slider */
 #difficulty {
@@ -432,6 +446,11 @@ main {
 }
 }
 
+@media (hover: none) and (pointer: coarse) {
+    .mobile-controls {
+        display: grid;
+    }
+}
 @media (max-width: 520px) {
     header, main { 
         padding: 16px; 

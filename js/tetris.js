@@ -543,11 +543,30 @@ function update(time = 0) {
 // Draw everything
 function draw() {
     drawBoard();
+    if (!gameOver) {
+        drawScoreOverlay();
+    }
     if (gameOver) {
         drawGameOver();
     } else {
         drawPiece();
     }
+}
+
+function drawScoreOverlay() {
+    const isLightMode = document.body.classList.contains('light-mode');
+    const textColor = isLightMode ? '#1a1a1a' : '#ffffff';
+    const shadowColor = isLightMode ? 'rgba(255, 255, 255, 0.6)' : 'rgba(0, 0, 0, 0.6)';
+
+    ctx.save();
+    ctx.font = 'bold 18px Arial';
+    ctx.textAlign = 'right';
+    ctx.textBaseline = 'top';
+    ctx.fillStyle = shadowColor;
+    ctx.fillText(`Score: ${score}`, canvas.width - 10 + 1, 10 + 1);
+    ctx.fillStyle = textColor;
+    ctx.fillText(`Score: ${score}`, canvas.width - 10, 10);
+    ctx.restore();
 }
 
 // Draw game over screen
@@ -608,6 +627,7 @@ function resetGame() {
     });
     
     drawBoard();
+    drawScoreOverlay();
     applyPreviewSettings();
 }
 
@@ -669,6 +689,45 @@ document.addEventListener('keydown', (e) => {
     }
     
     draw();
+});
+
+function handleControlAction(action) {
+    if (!gameStarted) {
+        startGame();
+    }
+
+    if (gameOver) {
+        resetGame();
+        startGame();
+    }
+
+    switch (action) {
+        case 'left':
+            move(-1);
+            break;
+        case 'right':
+            move(1);
+            break;
+        case 'drop':
+            hardDrop();
+            break;
+        case 'rotate':
+            rotatePiece();
+            break;
+        default:
+            return;
+    }
+
+    draw();
+}
+
+const controlButtons = document.querySelectorAll('.control-btn[data-action]');
+controlButtons.forEach((button) => {
+    button.addEventListener('pointerdown', (event) => {
+        event.preventDefault();
+        const action = button.dataset.action;
+        handleControlAction(action);
+    }, { passive: false });
 });
 
 // Initialize
