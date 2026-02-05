@@ -416,6 +416,38 @@ function drawPiece() {
     }
 }
 
+function getGhostPieceY() {
+    const ghost = {
+        matrix: currentPiece.matrix,
+        x: currentPiece.x,
+        y: currentPiece.y
+    };
+
+    while (!collide(ghost)) {
+        ghost.y++;
+    }
+
+    return ghost.y - 1;
+}
+
+function drawGhostPiece() {
+    if (!currentPiece.matrix) return;
+
+    const ghostY = getGhostPieceY();
+    const { matrix, x, color } = currentPiece;
+
+    ctx.save();
+    ctx.globalAlpha = 0.35;
+    for (let row = 0; row < matrix.length; row++) {
+        for (let col = 0; col < matrix[row].length; col++) {
+            if (matrix[row][col]) {
+                drawBlock(x + col, ghostY + row, color);
+            }
+        }
+    }
+    ctx.restore();
+}
+
 // Check collision
 function collide(piece = currentPiece) {
     const { matrix, x, y } = piece;
@@ -564,6 +596,7 @@ function draw() {
     if (gameOver) {
         drawGameOver();
     } else {
+        drawGhostPiece();
         drawPiece();
     }
 }
