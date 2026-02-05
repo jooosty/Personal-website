@@ -4,6 +4,7 @@
 const canvas = document.getElementById('tetris');
 const ctx = canvas.getContext('2d');
 const scoreElement = document.getElementById('score');
+const difficultyWrapper = document.querySelector('.tetris-difficulty');
 
 // Set canvas size
 const BLOCK_SIZE = 30;
@@ -403,6 +404,10 @@ function resetGame() {
     dropCounter = 0;
     lastTime = 0;
     unlockedSections.clear();
+
+    if (difficultyWrapper) {
+        difficultyWrapper.style.display = 'flex';
+    }
     
     // Re-lock all sections
     UNLOCKS.forEach(unlock => {
@@ -419,6 +424,10 @@ function resetGame() {
 // Start game
 function startGame() {
     if (gameStarted) return;
+
+    if (difficultyWrapper) {
+        difficultyWrapper.style.display = 'none';
+    }
     
     gameStarted = true;
     gameOver = false;

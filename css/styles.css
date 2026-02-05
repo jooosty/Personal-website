@@ -172,6 +172,10 @@ main {
     transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
+.tetris-wrap {
+    position: relative;
+    display: inline-block;
+}
 .score-display {
     background: var(--score-bg);
     backdrop-filter: blur(10px);
@@ -190,6 +194,68 @@ main {
     transition: color 0.3s ease;
 }
 
+/* difficulty slider */
+/* https://stackoverflow.com/questions/18389224/how-to-style-html5-range-input-to-have-different-color-before-and-after-slider */
+#difficulty {
+    width: 100%;
+    max-width: 300px;
+    margin-top: 10px;
+    -webkit-appearance: none;
+    appearance: none;
+    height: 10px;
+    border-radius: 999px;
+    background: linear-gradient(90deg, #2ecc71 0%, #f1c40f 50%, #e74c3c 100%);
+    outline: none;
+    border: 1px solid var(--list-item-border);
+}
+
+#difficulty::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: var(--accent-color);
+    border: 2px solid var(--text-primary);
+    box-shadow: 0 0 10px var(--accent-glow);
+    cursor: pointer;
+}
+
+#difficulty::-moz-range-thumb {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: var(--accent-color);
+    border: 2px solid var(--text-primary);
+    box-shadow: 0 0 10px var(--accent-glow);
+    cursor: pointer;
+}
+
+#difficulty::-moz-range-track {
+    height: 10px;
+    border-radius: 999px;
+    background: linear-gradient(90deg, #2ecc71 0%, #f1c40f 50%, #e74c3c 100%);
+    border: 1px solid var(--list-item-border);
+}
+
+.tetris-difficulty {
+    position: absolute;
+    left: 50%;
+    bottom: 12px;
+    transform: translateX(-50%);
+    width: calc(100% - 24px);
+    max-width: 300px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    background: rgba(0, 0, 0, 0.35);
+    backdrop-filter: blur(10px);
+    padding: 12px 16px;
+    border-radius: 12px;
+    border: 2px solid var(--list-item-border);
+    transition: background 0.3s ease, border 0.3s ease;
+}
 /* About Me Section */
 .about-me {
     background: var(--section-bg);
