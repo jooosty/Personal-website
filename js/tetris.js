@@ -11,6 +11,7 @@ const difficultyWrapper = document.querySelector('.tetris-difficulty');
 const mobileStartButton = document.getElementById('mobile-start');
 const pauseToggleButton = document.getElementById('pause-toggle');
 const unlockAllButton = document.getElementById('unlock-all');
+const tetrisAudio = document.getElementById('tetris-audio');
 
 // Set canvas size
 const BLOCK_SIZE = 30;
@@ -700,6 +701,11 @@ function resetGame() {
 
     canvas.classList.remove('is-paused');
 
+    if (tetrisAudio) {
+        tetrisAudio.pause();
+        tetrisAudio.currentTime = 0;
+    }
+
     if (difficultyWrapper) {
         difficultyWrapper.style.display = 'flex';
     }
@@ -756,6 +762,10 @@ function startGame() {
     updateMobileStartButton();
     updateMobileControlsVisibility();
     updatePauseButtonState();
+    if (tetrisAudio) {
+        tetrisAudio.loop = true;
+        tetrisAudio.play().catch(() => {});
+    }
     requestAnimationFrame(update);
 }
 
