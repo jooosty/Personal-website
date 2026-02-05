@@ -8,6 +8,8 @@ const difficultyInput = document.getElementById('difficulty');
 const previewPanel = document.querySelector('.next-preview');
 const previewList = document.getElementById('next-preview-list');
 const difficultyWrapper = document.querySelector('.tetris-difficulty');
+const mobileStartButton = document.getElementById('mobile-start');
+const handheldQuery = window.matchMedia('(hover: none) and (pointer: coarse)');
 
 // Set canvas size
 const BLOCK_SIZE = 30;
@@ -24,13 +26,10 @@ let dropCounter = 0;
 let dropInterval = 1000;
 let lastTime = 0;
 
-if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|BB|PlayBook|IEMobile|Windows Phone|Kindle|Silk|Opera Mini/i.test(navigator.userAgent)) {
-    // show hand-held test div
-    const testDiv = document.querySelector('.hand-held-test');
-    if (testDiv) {
-        testDiv.removeAttribute('hidden');
-    }
+function isHandheldDevice() {
+    return handheldQuery.matches;
 }
+
 
 // Unlock thresholds
 const UNLOCKS = [
@@ -255,6 +254,12 @@ function applyPreviewSettings() {
     syncPreviewCanvases();
     syncNextQueue();
     updateNextPreview();
+}
+
+function updateMobileStartButton() {
+    if (!mobileStartButton) return;
+    const shouldShow = isHandheldDevice() && !gameStarted;
+    mobileStartButton.hidden = !shouldShow;
 }
 
 function getNextPiece() {
@@ -629,6 +634,7 @@ function resetGame() {
     drawBoard();
     drawScoreOverlay();
     applyPreviewSettings();
+    updateMobileStartButton();
 }
 
 // Start game
@@ -644,6 +650,7 @@ function startGame() {
     currentPiece = getNextPiece();
     checkUnlocks(); // Check if score 0 unlocks anything
     updateNextPreview();
+    updateMobileStartButton();
     requestAnimationFrame(update);
 }
 
@@ -730,11 +737,24 @@ controlButtons.forEach((button) => {
     }, { passive: false });
 });
 
+if (mobileStartButton) {
+    mobileStartButton.addEventListener('pointerdown', (event) => {
+        event.preventDefault();
+        if (gameOver) {
+            resetGame();
+        }
+        startGame();
+    }, { passive: false });
+}
+
 // Initialize
 resetGame();
 
 // Display instructions with theme awareness
 function displayInstructions() {
+    if (isHandheldDevice()) {
+        return;
+    }
     const isLightMode = document.body.classList.contains('light-mode');
     const textColor = isLightMode ? '#1a1a1a' : '#fff';
     
@@ -749,6 +769,17 @@ function displayInstructions() {
 }
 
 displayInstructions();
+updateMobileStartButton();
+
+if (handheldQuery.addEventListener) {
+    handheldQuery.addEventListener('change', () => {
+        updateMobileStartButton();
+        if (!gameStarted) {
+            drawBoard();
+            displayInstructions();
+        }
+    });
+}
 
 // Redraw instructions when theme changes
 if (typeof MutationObserver !== 'undefined') {
