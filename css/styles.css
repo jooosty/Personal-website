@@ -59,6 +59,11 @@ body {
     overflow: hidden;
 }
 
+@media (max-width: 768px) {
+    body {
+        overflow: auto;
+    }
+}
 body.barrel-roll {
     animation: barrel-roll 1.2s ease-in-out;
     transform-origin: center center;
