@@ -4,6 +4,9 @@
 const canvas = document.getElementById('tetris');
 const ctx = canvas.getContext('2d');
 const scoreElement = document.getElementById('score');
+const difficultyInput = document.getElementById('difficulty');
+const previewPanel = document.querySelector('.next-preview');
+const previewList = document.getElementById('next-preview-list');
 const difficultyWrapper = document.querySelector('.tetris-difficulty');
 
 // Set canvas size
@@ -48,6 +51,12 @@ function updateUnlockBadges() {
 
 updateUnlockBadges();
 
+if (difficultyInput) {
+    difficultyInput.addEventListener('input', () => {
+        applyPreviewSettings();
+    });
+}
+
 // Create the game board
 const board = Array.from({ length: ROWS }, () => Array(COLS).fill(0));
 
@@ -88,6 +97,10 @@ let currentPiece = {
     y: 0,
     matrix: null
 };
+
+let nextQueue = [];
+let previewCanvases = [];
+let previewContexts = [];
 
 // Check and unlock sections based on score
 function checkUnlocks() {
@@ -151,6 +164,150 @@ function createPiece() {
         y: 0,
         matrix: shape
     };
+}
+
+function getPreviewCountFromDifficulty() {
+    const rawValue = difficultyInput ? parseInt(difficultyInput.value, 10) : 3;
+    const value = Number.isNaN(rawValue) ? 3 : rawValue;
+    const clamped = Math.min(5, Math.max(1, value));
+    return Math.max(0, 5 - clamped);
+}
+
+function getPreviewDisplayCount() {
+    const previewCount = getPreviewCountFromDifficulty();
+    return previewCount === 0 ? 1 : previewCount;
+}
+
+function syncPreviewCanvases() {
+    if (!previewList || !previewPanel) return;
+
+    const count = getPreviewDisplayCount();
+
+    while (previewCanvases.length < count) {
+        const canvasEl = document.createElement('canvas');
+        canvasEl.width = 120;
+        canvasEl.height = 120;
+        previewList.appendChild(canvasEl);
+        previewCanvases.push(canvasEl);
+        previewContexts.push(canvasEl.getContext('2d'));
+    }
+
+    while (previewCanvases.length > count) {
+        const canvasEl = previewCanvases.pop();
+        previewContexts.pop();
+        if (canvasEl && canvasEl.parentNode) {
+            canvasEl.parentNode.removeChild(canvasEl);
+        }
+    }
+
+    previewPanel.style.display = 'flex';
+}
+
+function syncNextQueue() {
+    const previewCount = getPreviewCountFromDifficulty();
+
+    if (previewCount === 0) {
+        nextQueue = [];
+        return;
+    }
+
+    if (nextQueue.length > previewCount) {
+        nextQueue = nextQueue.slice(0, previewCount);
+    }
+
+    while (nextQueue.length < previewCount) {
+        nextQueue.push(createPiece());
+    }
+}
+
+function applyPreviewSettings() {
+    syncPreviewCanvases();
+    syncNextQueue();
+    updateNextPreview();
+}
+
+function getNextPiece() {
+    const previewCount = getPreviewCountFromDifficulty();
+
+    if (previewCount === 0) {
+        return createPiece();
+    }
+
+    while (nextQueue.length < previewCount) {
+        nextQueue.push(createPiece());
+    }
+
+    const next = nextQueue.shift();
+    nextQueue.push(createPiece());
+    updateNextPreview();
+    return next || createPiece();
+}
+
+function drawNextPreview(ctx, piece) {
+    if (!ctx) return;
+
+    const isLightMode = document.body.classList.contains('light-mode');
+    const bgColor = isLightMode ? '#fff' : '#000';
+    const gridColor = isLightMode ? '#ddd' : '#333';
+
+    const canvas = ctx.canvas;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = bgColor;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    if (!piece) {
+        return;
+    }
+
+    const matrix = piece.matrix;
+    const maxWidth = Math.max(4, matrix[0].length);
+    const maxHeight = Math.max(4, matrix.length);
+    const block = Math.floor(Math.min(canvas.width / maxWidth, canvas.height / maxHeight));
+    const offsetX = Math.floor((canvas.width - matrix[0].length * block) / 2);
+    const offsetY = Math.floor((canvas.height - matrix.length * block) / 2);
+
+    ctx.strokeStyle = gridColor;
+    ctx.lineWidth = 1;
+
+    for (let y = 0; y < maxHeight; y++) {
+        for (let x = 0; x < maxWidth; x++) {
+            ctx.strokeRect(offsetX + x * block, offsetY + y * block, block, block);
+        }
+    }
+
+    for (let row = 0; row < matrix.length; row++) {
+        for (let col = 0; col < matrix[row].length; col++) {
+            if (matrix[row][col]) {
+                ctx.fillStyle = piece.color;
+                ctx.fillRect(offsetX + col * block, offsetY + row * block, block, block);
+                ctx.strokeStyle = '#000';
+                ctx.lineWidth = 2;
+                ctx.strokeRect(offsetX + col * block, offsetY + row * block, block, block);
+            }
+        }
+    }
+}
+
+function updateNextPreview() {
+    if (!previewContexts.length) return;
+
+    const previewCount = getPreviewCountFromDifficulty();
+
+    if (previewCount === 0) {
+        previewContexts.forEach((ctx) => {
+            drawNextPreview(ctx, null);
+            const canvas = ctx.canvas;
+            ctx.fillStyle = document.body.classList.contains('light-mode') ? '#1a1a1a' : '#ffffff';
+            ctx.font = 'bold 12px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('No pieces shown', canvas.width / 2, canvas.height / 2);
+        });
+        return;
+    }
+
+    previewContexts.forEach((ctx, index) => {
+        drawNextPreview(ctx, nextQueue[index]);
+    });
 }
 
 // Draw a block
@@ -298,7 +455,7 @@ function drop() {
             return;
         }
         
-        currentPiece = createPiece();
+        currentPiece = getNextPiece();
         if (collide()) {
             gameOver = true;
         }
@@ -404,6 +561,7 @@ function resetGame() {
     dropCounter = 0;
     lastTime = 0;
     unlockedSections.clear();
+    nextQueue = [];
 
     if (difficultyWrapper) {
         difficultyWrapper.style.display = 'flex';
@@ -419,6 +577,7 @@ function resetGame() {
     });
     
     drawBoard();
+    applyPreviewSettings();
 }
 
 // Start game
@@ -431,8 +590,9 @@ function startGame() {
     
     gameStarted = true;
     gameOver = false;
-    currentPiece = createPiece();
+    currentPiece = getNextPiece();
     checkUnlocks(); // Check if score 0 unlocks anything
+    updateNextPreview();
     requestAnimationFrame(update);
 }
 
@@ -507,6 +667,7 @@ if (typeof MutationObserver !== 'undefined') {
             if (mutation.attributeName === 'class' && !gameStarted) {
                 drawBoard();
                 displayInstructions();
+                updateNextPreview();
             }
         });
     });
