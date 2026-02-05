@@ -157,16 +157,13 @@ function unlockSection(sectionId) {
             displaySectionData(sectionId);
         }
         
-        // Remove the unlock badge
+        // Update the unlock badge (keep it so it can be restored on reset)
         const badge = document.querySelector(`.unlock-badge[data-section="${sectionId}"]`);
         if (badge) {
             badge.textContent = 'Unlocked!';
             badge.style.background = 'rgba(0, 255, 0, 0.2)';
             badge.style.borderColor = '#00ff00';
             badge.style.color = '#00ff00';
-            setTimeout(() => {
-                if (badge) badge.remove();
-            }, 2000);
         }
         
         // Play unlock sound effect (visual feedback)
@@ -175,6 +172,16 @@ function unlockSection(sectionId) {
             section.style.transform = 'scale(1)';
         }, 300);
     }
+}
+
+function resetUnlockBadges() {
+    const badges = document.querySelectorAll('.unlock-badge[data-section]');
+    badges.forEach((badge) => {
+        badge.style.background = '';
+        badge.style.borderColor = '';
+        badge.style.color = '';
+    });
+    updateUnlockBadges();
 }
 
 // Update score and check unlocks
@@ -673,6 +680,8 @@ function resetGame() {
             section.classList.remove('unlocked');
         }
     });
+
+    resetUnlockBadges();
     
     drawBoard();
     drawScoreOverlay();
