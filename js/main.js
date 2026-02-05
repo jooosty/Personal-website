@@ -167,8 +167,14 @@ const themeToggle = document.getElementById('theme-toggle');
 const themeIcon = document.querySelector('.theme-icon');
 const body = document.body;
 
-// Check for saved theme preference or default to dark mode
-const currentTheme = localStorage.getItem('theme') || 'dark';
+// Check for saved theme preference or default to system preference
+const storedTheme = localStorage.getItem('theme');
+const themeLock = localStorage.getItem('theme-lock');
+const prefersLightQuery = window.matchMedia ? window.matchMedia('(prefers-color-scheme: light)') : null;
+const prefersLight = prefersLightQuery ? prefersLightQuery.matches : false;
+const systemTheme = prefersLight ? 'light' : 'dark';
+const currentTheme = themeLock === 'on' && storedTheme ? storedTheme : systemTheme;
+
 if (currentTheme === 'light') {
     body.classList.add('light-mode');
     themeIcon.textContent = '☀️';
@@ -182,11 +188,27 @@ themeToggle.addEventListener('click', () => {
     if (body.classList.contains('light-mode')) {
         themeIcon.textContent = '☀️';
         localStorage.setItem('theme', 'light');
+        localStorage.setItem('theme-lock', 'on');
     } else {
         themeIcon.textContent = '🌙';
         localStorage.setItem('theme', 'dark');
+        localStorage.setItem('theme-lock', 'on');
     }
 });
+
+if (prefersLightQuery) {
+    prefersLightQuery.addEventListener('change', (event) => {
+        if (localStorage.getItem('theme-lock') === 'on') return;
+        const nextTheme = event.matches ? 'light' : 'dark';
+        if (nextTheme === 'light') {
+            body.classList.add('light-mode');
+            themeIcon.textContent = '☀️';
+        } else {
+            body.classList.remove('light-mode');
+            themeIcon.textContent = '🌙';
+        }
+    });
+}
 
 const rollSequence = ['r', 'o', 'l', 'l'];
 let rollIndex = 0;
