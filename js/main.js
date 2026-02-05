@@ -1,4 +1,4 @@
-const apiUrl = "http://localhost:5000/api";
+const apiUrl = "https://fdnd.directus.app/items/person?filter[id]=297";
 
 // Store fetched data privately
 const apiData = {};
@@ -45,115 +45,40 @@ function setPlaceholdersList(listId, dataArray) {
 
 async function loadAPI() {
     try {
-        const res = await fetch(apiUrl + "/data");
+        const res = await fetch(apiUrl);
         if (!res.ok) throw new Error("Network response was not ok");
-        const data = await res.json();
-    } catch (err) {
-        console.error("Failed to load API data:", err);
-    }
-}
+        const payload = await res.json();
+        const person = Array.isArray(payload.data) ? payload.data[0] : null;
+        if (!person) throw new Error("No person data found");
 
-async function loadName() {
-    try {
-        const res = await fetch(apiUrl + "/name");
-        if (!res.ok) throw new Error("Network response was not ok");
-        const data = await res.json();
-        apiData.name = data.name;
-        setPlaceholder('name', data.name);
-    } catch (err) {
-        console.error(err);
-        apiData.name = "Failed to load name.";
-    }
-}
+        let customData = {};
+        if (typeof person.custom === "string" && person.custom.trim()) {
+            try {
+                customData = JSON.parse(person.custom);
+            } catch (parseErr) {
+                console.error("Failed to parse custom data:", parseErr);
+            }
+        }
 
-async function loadHobbies() {
-    try {
-        const res = await fetch(apiUrl + "/hobbies");
-        if (!res.ok) throw new Error("Network response was not ok");
-        const data = await res.json();
-        apiData.hobbies = Array.isArray(data.hobbies) ? data.hobbies : [];
+        apiData.name = person.name || "";
+        apiData.age = customData.age ?? "";
+        apiData.location = customData.location || "";
+        apiData.hobbies = Array.isArray(customData.hobbies) ? customData.hobbies : [];
+        apiData.occupation = Array.isArray(customData.occupation) ? customData.occupation : [];
+        apiData.learningGoals = Array.isArray(customData.learning_goals) ? customData.learning_goals : [];
+        apiData.course = Array.isArray(customData.courses) ? customData.courses : [];
+        apiData.languages = Array.isArray(customData.languages) ? customData.languages : [];
+
+        setPlaceholder('name', apiData.name);
+        setPlaceholder('age', apiData.age);
+        setPlaceholder('location', apiData.location);
         setPlaceholdersList('hobbies-list', apiData.hobbies);
-    } catch (err) {
-        console.error(err);
-        apiData.hobbies = null;
-    }
-}
-
-async function loadAge() {
-    try {
-        const res = await fetch(apiUrl + "/age");
-        if (!res.ok) throw new Error("Network response was not ok");
-        const data = await res.json();
-        apiData.age = data.age;
-        setPlaceholder('age', data.age);
-    } catch (err) {
-        console.error(err);
-        apiData.age = "Failed to load age.";
-    }
-}
-
-async function loadLocation() {
-    try {
-        const res = await fetch(apiUrl + "/location");
-        if (!res.ok) throw new Error("Network response was not ok");
-        const data = await res.json();
-        apiData.location = data.location;
-        setPlaceholder('location', data.location);
-    } catch (err) {
-        console.error(err);
-        apiData.location = "Failed to load location.";
-    }
-}
-
-async function loadOccupation() {
-    try {
-        const res = await fetch(apiUrl + "/occupation");
-        if (!res.ok) throw new Error("Network response was not ok");
-        const data = await res.json();
-        apiData.occupation = Array.isArray(data.occupation) ? data.occupation : [];
         setPlaceholdersList('occupation-list', apiData.occupation);
-    } catch (err) {
-        console.error(err);
-        apiData.occupation = null;
-    }
-}
-
-async function loadLearningGoals() {
-    try {
-        const res = await fetch(apiUrl + "/learning_goals");
-        if (!res.ok) throw new Error("Network response was not ok");
-        const data = await res.json();
-        apiData.learningGoals = Array.isArray(data.learning_goals) ? data.learning_goals : [];
         setPlaceholdersList('learning-goals', apiData.learningGoals);
-    } catch (err) {
-        console.error(err);
-        apiData.learningGoals = null;
-    }
-}
-
-async function loadCourse() {
-    try {
-        const res = await fetch(apiUrl + "/course");
-        if (!res.ok) throw new Error("Network response was not ok");
-        const data = await res.json();
-        apiData.course = Array.isArray(data.course) ? data.course : [];
         setPlaceholdersList('course-list', apiData.course);
-    } catch (err) {
-        console.error(err);
-        apiData.course = null;
-    }
-}
-
-async function loadLanguages() {
-    try {
-        const res = await fetch(apiUrl + "/languages");
-        if (!res.ok) throw new Error("Network response was not ok");
-        const data = await res.json();
-        apiData.languages = Array.isArray(data.languages) ? data.languages : [];
         setPlaceholdersList('languages-list', apiData.languages);
     } catch (err) {
-        console.error(err);
-        apiData.languages = null;
+        console.error("Failed to load API data:", err);
     }
 }
 
@@ -232,25 +157,9 @@ function displaySectionData(sectionId) {
 if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", () => {
         loadAPI();
-        loadName();
-        loadHobbies();
-        loadAge();
-        loadLocation();
-        loadOccupation();
-        loadLearningGoals();
-        loadCourse();
-        loadLanguages();
     });
 } else {
     loadAPI();
-    loadName();
-    loadHobbies();
-    loadAge();
-    loadLocation();
-    loadOccupation();
-    loadLearningGoals();
-    loadCourse();
-    loadLanguages();
 }
 
 // Theme Toggle Functionality
