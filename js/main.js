@@ -194,6 +194,14 @@ let rollTimeoutId = null;
 const konamiSequence = ['arrowup', 'arrowup', 'arrowdown', 'arrowdown', 'arrowleft', 'arrowright', 'arrowleft', 'arrowright', 'b', 'a'];
 let konamiIndex = 0;
 let konamiTimeoutId = null;
+const tetrisSequence = ['t', 'e', 't', 'r', 'i', 's'];
+let tetrisIndex = 0;
+let tetrisTimeoutId = null;
+const scanSequence = ['s', 'c', 'a', 'n'];
+let scanIndex = 0;
+let scanTimeoutId = null;
+let zHoldTimer = null;
+let zTriggered = false;
 
 function triggerBarrelRoll() {
     document.body.classList.remove('barrel-roll');
@@ -224,44 +232,92 @@ function handleRollSequence(key) {
     }, 1200);
 }
 
-function triggerExplosion() {
-    if (document.body.classList.contains('exploding')) return;
-
-    document.body.classList.add('exploding');
+function triggerMeteorShower() {
     const layer = document.createElement('div');
-    layer.className = 'explosion-layer';
+    layer.className = 'meteor-layer';
 
     const fragment = document.createDocumentFragment();
     for (let i = 0; i < 1000; i += 1) {
-        const particle = document.createElement('span');
-        particle.className = 'explosion-particle';
-        const angle = Math.random() * Math.PI * 2;
-        const distance = 200 + Math.random() * 520;
-        const x = Math.cos(angle) * distance;
-        const y = Math.sin(angle) * distance;
-        const r = Math.floor(Math.random() * 360);
-        const s = (0.7 + Math.random() * 1.6).toFixed(2);
-        particle.style.setProperty('--x', `${x}px`);
-        particle.style.setProperty('--y', `${y}px`);
-        particle.style.setProperty('--r', `${r}deg`);
-        particle.style.setProperty('--s', s);
-        fragment.appendChild(particle);
+        const meteor = document.createElement('span');
+        meteor.className = 'meteor';
+        const startX = Math.random() * 110 - 10;
+        const delay = (Math.random() * 1.5).toFixed(2);
+        const duration = (1.2 + Math.random() * 1.8).toFixed(2);
+        const size = (2 + Math.random() * 4).toFixed(1);
+        meteor.style.setProperty('--x', `${startX}vw`);
+        meteor.style.setProperty('--delay', `${delay}s`);
+        meteor.style.setProperty('--duration', `${duration}s`);
+        meteor.style.setProperty('--size', `${size}px`);
+        fragment.appendChild(meteor);
     }
 
     layer.appendChild(fragment);
     document.body.appendChild(layer);
 
     setTimeout(() => {
-        document.body.classList.remove('exploding');
         layer.remove();
-    }, 10100);
+    }, 5000);
+}
+
+function triggerTetrisConfetti() {
+    const layer = document.createElement('div');
+    layer.className = 'tetris-confetti-layer';
+
+    const colors = ['#00f0f0', '#f0f000', '#a000f0', '#00f000', '#f00000', '#0000f0', '#f0a000'];
+    const fragment = document.createDocumentFragment();
+    for (let i = 0; i < 1000; i += 1) {
+        const confetti = document.createElement('span');
+        confetti.className = 'tetris-confetti';
+        const x = Math.random() * 100;
+        const delay = (Math.random() * 0.8).toFixed(2);
+        const duration = (2.5 + Math.random() * 2).toFixed(2);
+        const size = 10 + Math.floor(Math.random() * 10);
+        const rotate = Math.floor(Math.random() * 360);
+        confetti.style.setProperty('--x', `${x}vw`);
+        confetti.style.setProperty('--delay', `${delay}s`);
+        confetti.style.setProperty('--duration', `${duration}s`);
+        confetti.style.setProperty('--size', `${size}px`);
+        confetti.style.setProperty('--rotate', `${rotate}deg`);
+        confetti.style.background = colors[i % colors.length];
+        fragment.appendChild(confetti);
+    }
+
+    layer.appendChild(fragment);
+    document.body.appendChild(layer);
+
+    setTimeout(() => {
+        layer.remove();
+    }, 4500);
+}
+
+function triggerScanlineSweep() {
+    const layer = document.createElement('div');
+    layer.className = 'scanline-layer';
+    const line = document.createElement('div');
+    line.className = 'scanline';
+    layer.appendChild(line);
+    document.body.appendChild(layer);
+
+    setTimeout(() => {
+        layer.remove();
+    }, 1400);
+}
+
+function triggerSlowmoPulse() {
+    if (document.body.classList.contains('slowmo-pulse')) return;
+    document.body.classList.remove('slowmo-pulse');
+    void document.body.offsetWidth;
+    document.body.classList.add('slowmo-pulse');
+    setTimeout(() => {
+        document.body.classList.remove('slowmo-pulse');
+    }, 1900);
 }
 
 function handleKonamiSequence(key) {
     if (key === konamiSequence[konamiIndex]) {
         konamiIndex += 1;
         if (konamiIndex === konamiSequence.length) {
-            triggerExplosion();
+            triggerMeteorShower();
             konamiIndex = 0;
         }
     } else {
@@ -277,12 +333,71 @@ function handleKonamiSequence(key) {
     }, 1500);
 }
 
+function handleTetrisSequence(key) {
+    if (key === tetrisSequence[tetrisIndex]) {
+        tetrisIndex += 1;
+        if (tetrisIndex === tetrisSequence.length) {
+            triggerTetrisConfetti();
+            tetrisIndex = 0;
+        }
+    } else {
+        tetrisIndex = key === tetrisSequence[0] ? 1 : 0;
+    }
+
+    if (tetrisTimeoutId) {
+        clearTimeout(tetrisTimeoutId);
+    }
+
+    tetrisTimeoutId = setTimeout(() => {
+        tetrisIndex = 0;
+    }, 1200);
+}
+
+function handleScanSequence(key) {
+    if (key === scanSequence[scanIndex]) {
+        scanIndex += 1;
+        if (scanIndex === scanSequence.length) {
+            triggerScanlineSweep();
+            scanIndex = 0;
+        }
+    } else {
+        scanIndex = key === scanSequence[0] ? 1 : 0;
+    }
+
+    if (scanTimeoutId) {
+        clearTimeout(scanTimeoutId);
+    }
+
+    scanTimeoutId = setTimeout(() => {
+        scanIndex = 0;
+    }, 1200);
+}
+
 document.addEventListener('keydown', (e) => {
+    if (e.code === 'KeyZ' && !zHoldTimer && !zTriggered) {
+        zHoldTimer = setTimeout(() => {
+            triggerSlowmoPulse();
+            zTriggered = true;
+        }, 2000);
+    }
+
     if (e.key && e.key.length === 1) {
         handleRollSequence(e.key.toLowerCase());
+        handleTetrisSequence(e.key.toLowerCase());
+        handleScanSequence(e.key.toLowerCase());
     }
 
     if (e.key) {
         handleKonamiSequence(e.key.toLowerCase());
+    }
+});
+
+document.addEventListener('keyup', (e) => {
+    if (e.code === 'KeyZ') {
+        if (zHoldTimer) {
+            clearTimeout(zHoldTimer);
+            zHoldTimer = null;
+        }
+        zTriggered = false;
     }
 });

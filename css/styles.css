@@ -56,6 +56,7 @@ body {
     min-height: 100vh;
     padding: 24px;
     transition: background 0.3s ease, color 0.3s ease;
+    overflow: hidden;
 }
 
 body.barrel-roll {
@@ -63,6 +64,10 @@ body.barrel-roll {
     transform-origin: center center;
 }
 
+body.slowmo-pulse {
+    animation: slowmo-pulse 2.2s ease-in-out;
+    transform-origin: center center;
+}
 @keyframes barrel-roll {
     0% {
         transform: rotate(0deg);
@@ -73,68 +78,169 @@ body.barrel-roll {
     }
 }
 
-body.exploding {
-    animation: explode-shake 10s ease-in-out;
-    overflow: hidden;
-}
-
-@keyframes explode-shake {
+@keyframes slowmo-pulse {
     0% {
-        transform: translate(0, 0) rotate(0deg);
-    }
-
-    20% {
-        transform: translate(-60px, 40px) rotate(-10deg);
+        transform: scale(1);
+        filter: saturate(100%);
     }
 
     40% {
-        transform: translate(60px, -40px) rotate(10deg);
+        transform: scale(1.12);
+        filter: saturate(170%);
     }
 
-    60% {
-        transform: translate(-40px, -20px) rotate(-10deg);
-    }
-
-    80% {
-        transform: translate(40px, 20px) rotate(10deg);
+    70% {
+        transform: scale(0.92);
+        filter: saturate(140%);
     }
 
     100% {
-        transform: translate(0, 0) rotate(0deg);
+        transform: scale(1);
+        filter: saturate(100%);
     }
 }
 
-.explosion-layer {
+.scanline-layer {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 9997;
+    overflow: hidden;
+}
+
+.scanline {
+    position: absolute;
+    left: -100vw;
+    top: 0;
+    width: 200vw;
+    height: 2.5vh;
+    background: linear-gradient(90deg, rgba(0, 0, 0, 0), rgba(0, 255, 255, 0.15), rgba(0, 255, 255, 0.95), rgba(255, 0, 200, 0.7), rgba(0, 255, 255, 0.95), rgba(0, 255, 255, 0.15), rgba(0, 0, 0, 0));
+    filter: blur(1px) saturate(220%);
+    box-shadow: 0 0 40px rgba(0, 255, 255, 0.85), 0 0 80px rgba(255, 0, 200, 0.6);
+    transform: translate(0, 0);
+    animation: scanline-sweep 6s linear forwards;
+}
+
+@keyframes scanline-sweep {
+    0% {
+        opacity: 0;
+            transform: translate(0, 0);
+        }
+        
+        10% {
+            opacity: 1;
+            transform: translate(20vw, 85vh);
+        }
+        
+        20% {
+            transform: translate(40vw, 0);
+        }
+        
+        30% {
+            transform: translate(60vw, 85vh);
+        }
+        
+        40% {
+            transform: translate(80vw, 0);
+        }
+        
+        50% {
+            transform: translate(100vw, 85vh);
+        }
+        
+        60% {
+            transform: translate(120vw, 0);
+        }
+        
+        70% {
+            transform: translate(140vw, 85vh);
+        }
+        
+        80% {
+            transform: translate(160vw, 0);
+        }
+        
+        90% {
+            transform: translate(180vw, 85vh);
+        }
+        
+        10% {
+            opacity: 1;
+            transform: translate(20vw, 100vh);
+        }
+        
+        20% {
+                transform: translate(40vw, 0);
+                }
+                
+                30% {
+                    transform: translate(60vw, 100vh);
+                }
+                
+                40% {
+                transform: translate(80vw, 0);
+                }
+                
+                50% {
+                    transform: translate(100vw, 100vh);
+                }
+                
+                60% {
+                transform: translate(120vw, 0);
+                }
+                
+                70% {
+                    transform: translate(140vw, 100vh);
+                }
+                
+                80% {
+                transform: translate(160vw, 0);
+                }
+                
+                90% {
+                    transform: translate(180vw, 100vh);
+                }
+
+    100% {
+                transform: translate(200vw, 0);
+                    opacity: 0;
+    }
+}
+
+.tetris-confetti-layer {
     position: fixed;
     inset: 0;
     pointer-events: none;
     z-index: 9999;
-    overflow: visible;
+    overflow: hidden;
 }
 
-.explosion-particle {
+.tetris-confetti {
     position: absolute;
-    left: 50%;
-    top: 50%;
-    width: 12px;
-    height: 12px;
+    top: -10vh;
+        left: var(--x);
+        width: var(--size);
+        height: var(--size);
     border-radius: 3px;
-    background: var(--accent-color);
+    box-shadow: 0 0 12px rgba(0, 0, 0, 0.35);
     opacity: 0;
-    transform: translate(-50%, -50%) scale(0.2);
-    animation: explode-particle 10s ease-out forwards;
-    box-shadow: 0 0 10px var(--accent-glow);
+    transform: rotate(var(--rotate));
+        animation: tetris-fall var(--duration) ease-in var(--delay) forwards;
 }
 
-@keyframes explode-particle {
+@keyframes tetris-fall {
     0% {
+        opacity: 0;
+            transform: translateY(-10vh) rotate(var(--rotate));
+        }
+        
+        10% {
         opacity: 1;
-        transform: translate(-50%, -50%) scale(0.2);
     }
 
     100% {
         opacity: 0;
-        transform: translate(-50%, -50%) translate(var(--x), var(--y)) rotate(var(--r)) scale(var(--s));
+        transform: translateY(120vh) rotate(calc(var(--rotate) + 220deg));
     }
 }
 a {
