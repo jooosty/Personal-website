@@ -13,6 +13,7 @@ const pauseToggleButton = document.getElementById('pause-toggle');
 const unlockAllButton = document.getElementById('unlock-all');
 const tetrisAudio = document.getElementById('tetris-audio');
 const lineClearAudio = document.getElementById('tetris-line-clear');
+const unlockAudio = document.getElementById('unlock-audio');
 
 // Set canvas size
 const BLOCK_SIZE = 30;
@@ -176,6 +177,11 @@ function unlockSection(sectionId) {
         setTimeout(() => {
             section.style.transform = 'scale(1)';
         }, 300);
+
+        if (unlockAudio) {
+            unlockAudio.currentTime = 0;
+            unlockAudio.play().catch(() => {});
+        }
     }
 }
 
