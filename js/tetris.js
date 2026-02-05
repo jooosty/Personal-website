@@ -27,8 +27,12 @@ let dropInterval = 1000;
 let lastTime = 0;
 
 function isHandheldDevice() {
-    return handheldQuery.matches;
+    if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|BB|PlayBook|IEMobile|Windows Phone|Kindle|Silk|Opera Mini/i.test(navigator.userAgent)) {
+        return true;
+    }
 }
+
+
 
 
 // Unlock thresholds
