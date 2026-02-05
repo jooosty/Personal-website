@@ -27,32 +27,31 @@ let lastTime = 0;
 // Unlock thresholds
 const UNLOCKS = [
     { score: 0, section: 'name' },
-    { score: 100, section: 'age' },
-    { score: 200, section: 'location' },
-    { score: 400, section: 'hobbies-list' },
-    { score: 800, section: 'course-list' },
-    { score: 1600, section: 'occupation-list' },
-    { score: 3200, section: 'learning-goals' },
-    { score: 6400, section: 'languages-list' }
+    { score: 50, section: 'age' },
+    { score: 100, section: 'location' },
+    { score: 200, section: 'hobbies-list' },
+    { score: 400, section: 'course-list' },
+    { score: 800, section: 'occupation-list' },
+    { score: 1600, section: 'learning-goals' },
+    { score: 3200, section: 'languages-list' }
 ];
 
 // Set drop interval based on difficulty
 function updateDropInterval() {
-    const previewCount = getPreviewCountFromDifficulty();
-    switch (previewCount) {
-        case 5: // Difficulty 1
+    switch (difficultyInput.value) {
+        case '1': // Difficulty 1
             dropInterval = 1400;
             break;
-        case 4: // Difficulty 2
+        case '2': // Difficulty 2
             dropInterval = 1200;
             break;
-        case 3: // Difficulty 3
+        case '3': // Difficulty 3
             dropInterval = 1000;
             break;
-        case 2: // Difficulty 4
+        case '4': // Difficulty 4
             dropInterval = 800;
             break;
-        case 1: // Difficulty 5
+        case '5': // Difficulty 5
             dropInterval = 600;
             break;
     }
@@ -67,7 +66,7 @@ function updateUnlockBadges() {
         const sectionId = badge.dataset.section;
         const unlock = UNLOCKS.find(item => item.section === sectionId);
         if (!unlock) return;
-        badge.textContent = `Unlock at ${unlock.score} pts`;
+        badge.textContent = `Unlock at ${unlock.score * parseInt(difficultyInput.value)} pts`;
     });
 }
 
@@ -77,6 +76,7 @@ if (difficultyInput) {
     difficultyInput.addEventListener('input', () => {
         applyPreviewSettings();
         updateDropInterval();
+        updateUnlockBadges();
     });
 }
 
