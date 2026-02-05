@@ -737,6 +737,7 @@ function updatePauseButtonState() {
     pauseToggleButton.setAttribute('aria-label', isPaused ? 'Resume game' : 'Pause game');
 }
 
+
 // Start game
 function startGame() {
     if (gameStarted) return;

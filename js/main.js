@@ -187,3 +187,102 @@ themeToggle.addEventListener('click', () => {
         localStorage.setItem('theme', 'dark');
     }
 });
+
+const rollSequence = ['r', 'o', 'l', 'l'];
+let rollIndex = 0;
+let rollTimeoutId = null;
+const konamiSequence = ['arrowup', 'arrowup', 'arrowdown', 'arrowdown', 'arrowleft', 'arrowright', 'arrowleft', 'arrowright', 'b', 'a'];
+let konamiIndex = 0;
+let konamiTimeoutId = null;
+
+function triggerBarrelRoll() {
+    document.body.classList.remove('barrel-roll');
+    void document.body.offsetWidth;
+    document.body.classList.add('barrel-roll');
+    setTimeout(() => {
+        document.body.classList.remove('barrel-roll');
+    }, 1300);
+}
+
+function handleRollSequence(key) {
+    if (key === rollSequence[rollIndex]) {
+        rollIndex += 1;
+        if (rollIndex === rollSequence.length) {
+            triggerBarrelRoll();
+            rollIndex = 0;
+        }
+    } else {
+        rollIndex = key === rollSequence[0] ? 1 : 0;
+    }
+
+    if (rollTimeoutId) {
+        clearTimeout(rollTimeoutId);
+    }
+
+    rollTimeoutId = setTimeout(() => {
+        rollIndex = 0;
+    }, 1200);
+}
+
+function triggerExplosion() {
+    if (document.body.classList.contains('exploding')) return;
+
+    document.body.classList.add('exploding');
+    const layer = document.createElement('div');
+    layer.className = 'explosion-layer';
+
+    const fragment = document.createDocumentFragment();
+    for (let i = 0; i < 1000; i += 1) {
+        const particle = document.createElement('span');
+        particle.className = 'explosion-particle';
+        const angle = Math.random() * Math.PI * 2;
+        const distance = 200 + Math.random() * 520;
+        const x = Math.cos(angle) * distance;
+        const y = Math.sin(angle) * distance;
+        const r = Math.floor(Math.random() * 360);
+        const s = (0.7 + Math.random() * 1.6).toFixed(2);
+        particle.style.setProperty('--x', `${x}px`);
+        particle.style.setProperty('--y', `${y}px`);
+        particle.style.setProperty('--r', `${r}deg`);
+        particle.style.setProperty('--s', s);
+        fragment.appendChild(particle);
+    }
+
+    layer.appendChild(fragment);
+    document.body.appendChild(layer);
+
+    setTimeout(() => {
+        document.body.classList.remove('exploding');
+        layer.remove();
+    }, 10100);
+}
+
+function handleKonamiSequence(key) {
+    if (key === konamiSequence[konamiIndex]) {
+        konamiIndex += 1;
+        if (konamiIndex === konamiSequence.length) {
+            triggerExplosion();
+            konamiIndex = 0;
+        }
+    } else {
+        konamiIndex = key === konamiSequence[0] ? 1 : 0;
+    }
+
+    if (konamiTimeoutId) {
+        clearTimeout(konamiTimeoutId);
+    }
+
+    konamiTimeoutId = setTimeout(() => {
+        konamiIndex = 0;
+    }, 1500);
+}
+
+document.addEventListener('keydown', (e) => {
+    if (e.key && e.key.length === 1) {
+        handleRollSequence(e.key.toLowerCase());
+    }
+
+    if (e.key) {
+        handleKonamiSequence(e.key.toLowerCase());
+    }
+});
