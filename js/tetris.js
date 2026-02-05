@@ -9,6 +9,7 @@ const previewPanel = document.querySelector('.next-preview');
 const previewList = document.getElementById('next-preview-list');
 const difficultyWrapper = document.querySelector('.tetris-difficulty');
 const mobileStartButton = document.getElementById('mobile-start');
+const pauseToggleButton = document.getElementById('pause-toggle');
 
 // Set canvas size
 const BLOCK_SIZE = 30;
@@ -21,6 +22,7 @@ canvas.height = ROWS * BLOCK_SIZE;
 let score = 0;
 let gameOver = false;
 let gameStarted = false;
+let isPaused = false;
 let dropCounter = 0;
 let dropInterval = 1000;
 let lastTime = 0;
@@ -580,7 +582,7 @@ function update(time = 0) {
         return;
     }
     
-    if (!gameOver) {
+    if (!gameOver && !isPaused) {
         const deltaTime = time - lastTime;
         lastTime = time;
         dropCounter += deltaTime;
@@ -602,10 +604,30 @@ function draw() {
     }
     if (gameOver) {
         drawGameOver();
+    } else if (isPaused) {
+        drawGhostPiece();
+        drawPiece();
+        drawPausedOverlay();
     } else {
         drawGhostPiece();
         drawPiece();
     }
+}
+
+function drawPausedOverlay() {
+    const isLightMode = document.body.classList.contains('light-mode');
+    const overlayColor = isLightMode ? 'rgba(255, 255, 255, 0.55)' : 'rgba(0, 0, 0, 0.55)';
+    const textColor = isLightMode ? '#1a1a1a' : '#ffffff';
+
+    ctx.save();
+    ctx.fillStyle = overlayColor;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = textColor;
+    ctx.font = 'bold 32px Arial';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('PAUSED', canvas.width / 2, canvas.height / 2);
+    ctx.restore();
 }
 
 function drawScoreOverlay() {
@@ -663,10 +685,13 @@ function resetGame() {
     scoreElement.textContent = score;
     gameOver = false;
     gameStarted = false;
+    isPaused = false;
     dropCounter = 0;
     lastTime = 0;
     unlockedSections.clear();
     nextQueue = [];
+
+    canvas.classList.remove('is-paused');
 
     if (difficultyWrapper) {
         difficultyWrapper.style.display = 'flex';
@@ -688,6 +713,21 @@ function resetGame() {
     applyPreviewSettings();
     updateMobileStartButton();
     updateMobileControlsVisibility();
+    updatePauseButtonState();
+}
+
+function togglePause() {
+    if (!gameStarted || gameOver) return;
+    isPaused = !isPaused;
+    canvas.classList.toggle('is-paused', isPaused);
+    updatePauseButtonState();
+    draw();
+}
+
+function updatePauseButtonState() {
+    if (!pauseToggleButton) return;
+    pauseToggleButton.textContent = isPaused ? 'Resume' : 'Pause';
+    pauseToggleButton.setAttribute('aria-label', isPaused ? 'Resume game' : 'Pause game');
 }
 
 // Start game
@@ -700,11 +740,14 @@ function startGame() {
     
     gameStarted = true;
     gameOver = false;
+    isPaused = false;
+    canvas.classList.remove('is-paused');
     currentPiece = getNextPiece();
     checkUnlocks(); // Check if score 0 unlocks anything
     updateNextPreview();
     updateMobileStartButton();
     updateMobileControlsVisibility();
+    updatePauseButtonState();
     requestAnimationFrame(update);
 }
 
@@ -713,12 +756,22 @@ document.addEventListener('keydown', (e) => {
     if (gameStarted && ['ArrowLeft', 'ArrowRight', 'ArrowDown', 'ArrowUp', ' '].includes(e.key)) {
         e.preventDefault();
     }
+
+    if (e.key === 'Escape') {
+        e.preventDefault();
+        togglePause();
+        return;
+    }
     
     if (!gameStarted) {
         if (e.key === 'Enter' || e.key === ' ') {
             e.preventDefault();
             startGame();
         }
+        return;
+    }
+
+    if (isPaused) {
         return;
     }
     
@@ -799,6 +852,12 @@ if (mobileStartButton) {
         }
         startGame();
     }, { passive: false });
+}
+
+if (pauseToggleButton) {
+    pauseToggleButton.addEventListener('click', () => {
+        togglePause();
+    });
 }
 
 // Initialize

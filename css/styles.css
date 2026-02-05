@@ -104,6 +104,26 @@ header h1 {
     transition: color 0.3s ease;
 }
 
+/* Pause Toggle Button */
+.pause-toggle {
+    position: absolute;
+    left: 12px;
+    top: 12px;
+    background: var(--badge-bg);
+    border: 2px solid var(--badge-border);
+    border-radius: 999px;
+    padding: 8px 14px;
+    color: var(--text-primary);
+    font-weight: 600;
+    letter-spacing: 0.3px;
+    transition: all 0.3s ease;
+    z-index: 3;
+}
+
+.pause-toggle:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 16px var(--accent-glow);
+}
 /* Theme Toggle Button */
 .theme-toggle {
     position: absolute;
@@ -172,6 +192,9 @@ main {
     transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
+#tetris.is-paused {
+    filter: blur(2px);
+}
 .tetris-wrap {
     position: relative;
     display: inline-block;
@@ -498,6 +521,11 @@ main {
     header h1 { 
         font-size: 1.25rem; 
     }
+        .pause-toggle {
+            left: 10px;
+            top: 10px;
+            font-size: 0.85rem;
+        }
     
     .game-section h1,
     .about-me h1 {
