@@ -9,7 +9,6 @@ const previewPanel = document.querySelector('.next-preview');
 const previewList = document.getElementById('next-preview-list');
 const difficultyWrapper = document.querySelector('.tetris-difficulty');
 const mobileStartButton = document.getElementById('mobile-start');
-const handheldQuery = window.matchMedia('(hover: none) and (pointer: coarse)');
 
 // Set canvas size
 const BLOCK_SIZE = 30;
@@ -264,6 +263,13 @@ function updateMobileStartButton() {
     if (!mobileStartButton) return;
     const shouldShow = isHandheldDevice() && !gameStarted;
     mobileStartButton.hidden = !shouldShow;
+}
+
+function updateMobileControlsVisibility() {
+    const controls = document.querySelector('.mobile-controls');
+    if (!controls) return;
+    const shouldShow = isHandheldDevice() && gameStarted;
+    controls.style.display = shouldShow ? 'grid' : 'none';
 }
 
 function getNextPiece() {
@@ -639,6 +645,7 @@ function resetGame() {
     drawScoreOverlay();
     applyPreviewSettings();
     updateMobileStartButton();
+    updateMobileControlsVisibility();
 }
 
 // Start game
@@ -655,6 +662,7 @@ function startGame() {
     checkUnlocks(); // Check if score 0 unlocks anything
     updateNextPreview();
     updateMobileStartButton();
+    updateMobileControlsVisibility();
     requestAnimationFrame(update);
 }
 
@@ -774,16 +782,7 @@ function displayInstructions() {
 
 displayInstructions();
 updateMobileStartButton();
-
-if (handheldQuery.addEventListener) {
-    handheldQuery.addEventListener('change', () => {
-        updateMobileStartButton();
-        if (!gameStarted) {
-            drawBoard();
-            displayInstructions();
-        }
-    });
-}
+updateMobileControlsVisibility();
 
 // Redraw instructions when theme changes
 if (typeof MutationObserver !== 'undefined') {
