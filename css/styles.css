@@ -73,6 +73,10 @@ body.slowmo-pulse {
     animation: slowmo-pulse 2.2s ease-in-out;
     transform-origin: center center;
 }
+body.mine-shake {
+    animation: mine-shake 380ms ease-out;
+    transform-origin: center center;
+}
 @keyframes barrel-roll {
     0% {
         transform: rotate(0deg);
@@ -105,6 +109,35 @@ body.slowmo-pulse {
     }
 }
 
+@keyframes mine-shake {
+    0% {
+        transform: translate3d(0, 0, 0);
+    }
+
+    15% {
+        transform: translate3d(-4px, 3px, 0);
+    }
+
+    30% {
+        transform: translate3d(4px, -3px, 0);
+    }
+
+    45% {
+        transform: translate3d(-3px, -2px, 0);
+    }
+
+    60% {
+        transform: translate3d(3px, 2px, 0);
+    }
+
+    75% {
+        transform: translate3d(-2px, 1px, 0);
+    }
+
+    100% {
+        transform: translate3d(0, 0, 0);
+    }
+}
 .scanline-layer {
     position: fixed;
     inset: 0;

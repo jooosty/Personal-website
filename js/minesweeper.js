@@ -274,6 +274,15 @@ function initMinesweeper() {
         burst.style.top = `${y}px`;
         layer.appendChild(burst);
         setTimeout(() => burst.remove(), 500);
+
+        document.body.classList.remove('mine-shake');
+        void document.body.offsetWidth;
+        document.body.classList.add('mine-shake');
+        document.body.classList.add('no-scroll');
+        setTimeout(() => {
+            document.body.classList.remove('mine-shake');
+            document.body.classList.remove('no-scroll');
+        }, 420);
     }
 
     function spawnConfetti(cell) {
