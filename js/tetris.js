@@ -128,6 +128,28 @@ const COLORS = {
     L: '#f0a000'
 };
 
+const WEIGHT = {
+    I: 100,
+    O: 100,
+    T: 100,
+    S: 100,
+    Z: 100,
+    J: 100,
+    L: 100
+};
+
+const DROUGHT_BONUS = 12;
+
+const pieceDrought = {
+    I: 0,
+    O: 0,
+    T: 0,
+    S: 0,
+    Z: 0,
+    J: 0,
+    L: 0
+};
+
 // Current piece
 let currentPiece = {
     shape: null,
@@ -211,7 +233,34 @@ function unlockAllSections() {
 // Create a new piece
 function createPiece() {
     const shapes = Object.keys(SHAPES);
-    const randomShape = shapes[Math.floor(Math.random() * shapes.length)];
+    let totalWeight = 0;
+    const weighted = shapes.map((shapeKey) => {
+        const base = WEIGHT[shapeKey] || 100;
+        const bonus = (pieceDrought[shapeKey] || 0) * DROUGHT_BONUS;
+        const weight = base + bonus;
+        totalWeight += weight;
+        return { shapeKey, weight };
+    });
+
+    let roll = Math.random() * totalWeight;
+    let randomShape = weighted[weighted.length - 1].shapeKey;
+
+    for (let i = 0; i < weighted.length; i++) {
+        roll -= weighted[i].weight;
+        if (roll <= 0) {
+            randomShape = weighted[i].shapeKey;
+            break;
+        }
+    }
+
+    shapes.forEach((shapeKey) => {
+        if (shapeKey === randomShape) {
+            pieceDrought[shapeKey] = 0;
+        } else {
+            pieceDrought[shapeKey] = (pieceDrought[shapeKey] || 0) + 1;
+        }
+    });
+    
     const shape = SHAPES[randomShape];
     
     return {
@@ -709,6 +758,10 @@ function resetGame() {
     lastTime = 0;
     unlockedSections.clear();
     nextQueue = [];
+
+    Object.keys(pieceDrought).forEach((key) => {
+        pieceDrought[key] = 0;
+    });
 
     canvas.classList.remove('is-paused');
 
