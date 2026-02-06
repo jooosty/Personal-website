@@ -84,7 +84,7 @@ class Minesweeper {
 }
 
 const MINESWEEPER_SIZES = [5, 7, 9, 11, 13];
-const MINESWEEPER_DIFFICULTY_PERCENTS = [0.08, 0.12, 0.16, 0.20, 0.24];
+const MINESWEEPER_DIFFICULTY_PERCENTS = [0.01, 0.12, 0.16, 0.20, 0.24];
 const MINESWEEPER_CELL_SIZE = 32;
 const MINESWEEPER_NUMBER_POINTS = [5, 10, 15, 25, 40, 60, 80, 100, 120];
 const MINESWEEPER_DIFFICULTY_MULTIPLIERS = [1, 1.1, 1.2, 1.3, 1.4];
@@ -119,6 +119,13 @@ function initMinesweeper() {
 
     boardEl.setAttribute('role', 'grid');
 
+    function getCellSizeValue() {
+        if (!boardEl) return MINESWEEPER_CELL_SIZE;
+        const raw = getComputedStyle(boardEl).getPropertyValue('--ms-cell');
+        const parsed = Number.parseFloat(raw);
+        return Number.isNaN(parsed) ? MINESWEEPER_CELL_SIZE : parsed;
+    }
+
     function getSliderIndex(inputEl) {
         const raw = inputEl ? Number.parseInt(inputEl.value, 10) : 3;
         if (Number.isNaN(raw)) return 2;
@@ -148,7 +155,8 @@ function initMinesweeper() {
         const { size, mines } = getCurrentSettings();
         game = new Minesweeper(size, size, mines);
         isGameOver = false;
-        boardEl.style.gridTemplateColumns = `repeat(${game.cols}, ${MINESWEEPER_CELL_SIZE}px)`;
+        const cellSize = getCellSizeValue();
+        boardEl.style.gridTemplateColumns = `repeat(${game.cols}, ${cellSize}px)`;
         scored = Array.from({ length: game.rows }, () => Array(game.cols).fill(false));
         if (!keepScore) {
             score = 0;
@@ -329,6 +337,12 @@ function initMinesweeper() {
 
     updateControlLabels();
     createGameFromSettings({ keepScore: true });
+
+    window.addEventListener('resize', () => {
+        if (!game) return;
+        const cellSize = getCellSizeValue();
+        boardEl.style.gridTemplateColumns = `repeat(${game.cols}, ${cellSize}px)`;
+    });
 
     window.setMinesweeperScore = setMinesweeperScore;
     window.getMinesweeperScore = getMinesweeperScore;

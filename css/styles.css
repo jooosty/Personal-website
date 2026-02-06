@@ -646,8 +646,9 @@ main {
 }
 
 .minesweeper-board {
+    --ms-cell: 32px;
     display: grid;
-    grid-auto-rows: 32px;
+    grid-auto-rows: var(--ms-cell);
     gap: 4px;
     padding: 12px;
     background: var(--section-bg);
@@ -658,8 +659,8 @@ main {
 }
 
 .minesweeper-cell {
-    width: 32px;
-    height: 32px;
+    width: var(--ms-cell);
+        height: var(--ms-cell);
     border-radius: 6px;
     border: 1px solid var(--section-border);
     background: rgba(0, 0, 0, 0.2);
@@ -986,5 +987,28 @@ main {
     
     .score-display p {
         font-size: 20px;
+    }
+}
+@media (max-width: 900px) {
+    .minesweeper-board {
+        --ms-cell: 28px;
+    }
+}
+
+@media (max-width: 720px) {
+    .minesweeper-board {
+        --ms-cell: 24px;
+    }
+}
+
+@media (max-width: 520px) {
+    .minesweeper-board {
+        --ms-cell: 20px;
+        gap: 3px;
+        padding: 10px;
+    }
+
+    .minesweeper-cell {
+        font-size: 0.75rem;
     }
 }
