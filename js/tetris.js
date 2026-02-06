@@ -138,7 +138,7 @@ const WEIGHT = {
     L: 100
 };
 
-const DROUGHT_BONUS = 12;
+const DROUGHT_BONUS = 15;
 
 const pieceDrought = {
     I: 0,
@@ -252,6 +252,18 @@ function createPiece() {
             break;
         }
     }
+    // check if there is a piece with more then 10 drought, if so, override the random roll and pick the piece with the highest drought
+    const droughtThreshold = 10;
+    const maxDroughtShape = Object.keys(pieceDrought).reduce((maxShape, shapeKey) => {
+        if ((pieceDrought[shapeKey] || 0) > (pieceDrought[maxShape] || 0)) {
+            return shapeKey;
+        }        return maxShape;
+    }, shapes[0]);
+
+    if ((pieceDrought[maxDroughtShape] || 0) > droughtThreshold) {
+        console.debug(`[tetris] drought override: picking ${maxDroughtShape} with drought of ${pieceDrought[maxDroughtShape]}`);
+        randomShape = maxDroughtShape;
+    }
 
     shapes.forEach((shapeKey) => {
         if (shapeKey === randomShape) {
@@ -260,7 +272,16 @@ function createPiece() {
             pieceDrought[shapeKey] = (pieceDrought[shapeKey] || 0) + 1;
         }
     });
-    
+
+    console.debug('[tetris] piece roll', {
+        picked: randomShape,
+        drought: { ...pieceDrought },
+        weights: weighted.reduce((acc, item) => {
+            acc[item.shapeKey] = item.weight;
+            return acc;
+        }, {})
+    });
+
     const shape = SHAPES[randomShape];
     
     return {
