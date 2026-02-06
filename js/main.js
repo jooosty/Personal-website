@@ -77,6 +77,23 @@ async function loadAPI() {
         setPlaceholdersList('learning-goals', apiData.learningGoals);
         setPlaceholdersList('course-list', apiData.course);
         setPlaceholdersList('languages-list', apiData.languages);
+
+        const sections = [
+            { section: 'name', elementId: 'name' },
+            { section: 'age', elementId: 'age' },
+            { section: 'location', elementId: 'location' },
+            { section: 'hobbies-list', elementId: 'hobbies-list' },
+            { section: 'course-list', elementId: 'course-list' },
+            { section: 'occupation-list', elementId: 'occupation-list' },
+            { section: 'learning-goals', elementId: 'learning-goals' },
+            { section: 'languages-list', elementId: 'languages-list' }
+        ];
+
+        sections.forEach(({ section, elementId }) => {
+            const element = document.getElementById(elementId);
+            if (!element || element.classList.contains('locked')) return;
+            displaySectionData(section);
+        });
     } catch (err) {
         console.error("Failed to load API data:", err);
     }
@@ -438,3 +455,58 @@ document.addEventListener('keyup', (e) => {
         zTriggered = false;
     }
 });
+
+function initGameToggle() {
+    const tetrisSection = document.querySelector('.game-section');
+    const minesweeperSection = document.querySelector('.minesweeper-section');
+    const toggleButton = document.getElementById('different-game');
+
+    if (!tetrisSection || !minesweeperSection || !toggleButton) return;
+
+    let showingMinesweeper = false;
+
+    function updateToggleUI() {
+        if (showingMinesweeper) {
+            toggleButton.textContent = 'play tetris';
+            toggleButton.setAttribute('aria-label', 'Play Tetris');
+        } else {
+            toggleButton.textContent = 'play minesweeper';
+            toggleButton.setAttribute('aria-label', 'Play Minesweeper');
+        }
+    }
+
+    function applyVisibility() {
+        tetrisSection.classList.toggle('is-hidden', showingMinesweeper);
+        minesweeperSection.classList.toggle('is-hidden', !showingMinesweeper);
+        if (showingMinesweeper) {
+            if (typeof window.setTetrisPaused === 'function') {
+                window.setTetrisPaused(true);
+            }
+            if (typeof window.getTetrisScore === 'function' && typeof window.setMinesweeperScore === 'function') {
+                window.setMinesweeperScore(window.getTetrisScore());
+            }
+        } else {
+            if (typeof window.getMinesweeperScore === 'function' && typeof window.setTetrisScore === 'function') {
+                window.setTetrisScore(window.getMinesweeperScore());
+            }
+            if (typeof window.setTetrisPaused === 'function') {
+                window.setTetrisPaused(false);
+            }
+        }
+        updateToggleUI();
+    }
+
+    toggleButton.addEventListener('click', () => {
+        showingMinesweeper = !showingMinesweeper;
+        applyVisibility();
+    });
+
+    showingMinesweeper = false;
+    applyVisibility();
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initGameToggle);
+} else {
+    initGameToggle();
+}

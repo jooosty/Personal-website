@@ -48,7 +48,27 @@
                 <p>Score: <span id="score">0</span></p>
             </div>
         </div>
-        
+
+        <!-- Minesweeper Section -->
+        <div class="minesweeper-section">
+            <h1>Minesweeper Challenge</h1>
+            <div class="minesweeper-stage">
+                <div id="minesweeper-board" class="minesweeper-board"></div>
+                <div class="minesweeper-info">
+                    <p>Mines Left: <span id="mines-left">0</span></p>
+                    <p>Score: <span id="minesweeper-score">0</span></p>
+                    <button id="minesweeper-reset" class="minesweeper-reset" type="button" aria-label="Reset Minesweeper game">
+                        Reset
+                    </button>
+                </div>
+            </div>
+            <div class="minesweeper-controls">
+                <label for="minesweeper-size">Size: <span id="minesweeper-size-value">9x9</span></label>
+                <input type="range" id="minesweeper-size" name="minesweeper-size" min="1" max="5" value="3">
+                <label for="minesweeper-difficulty">Percantage bombs: <span id="minesweeper-difficulty-value">15%</span></label>
+                <input type="range" id="minesweeper-difficulty" name="minesweeper-difficulty" min="1" max="5" value="3">
+            </div>
+        </div>
         <!-- About Me Section -->
         <div class="about-me">
             
@@ -107,8 +127,15 @@
                 </button>
             </div>
 
+            <div class="different-game-area" aria-hidden="true">
+                <button id="different-game" class="different-game" type="button" aria-label="Play a different game">
+                    play something else
+                </button>
+            </div>
+
     <script src="js/main.js"></script>
     <script src="js/tetris.js"></script>
+    <script src="js/minesweeper.js"></script>
 
 </body>
 </html>

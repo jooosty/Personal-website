@@ -24,6 +24,7 @@ canvas.height = ROWS * BLOCK_SIZE;
 
 // Game state
 let score = 0;
+let externalUnlockScore = 0;
 let gameOver = false;
 let gameStarted = false;
 let isPaused = false;
@@ -73,6 +74,11 @@ function updateDropInterval() {
     }
 }
 
+function getDifficultyMultiplier() {
+    const rawValue = difficultyInput ? parseInt(difficultyInput.value, 10) : 1;
+    return Number.isNaN(rawValue) ? 1 : rawValue;
+}
+
 let unlockedSections = new Set();
 
 // Set unlock badge text from UNLOCKS
@@ -93,6 +99,7 @@ if (difficultyInput) {
         applyPreviewSettings();
         updateDropInterval();
         updateUnlockBadges();
+        checkUnlocks();
     });
 }
 
@@ -165,8 +172,10 @@ let previewContexts = [];
 
 // Check and unlock sections based on score
 function checkUnlocks() {
+    const totalScore = score + externalUnlockScore;
+    const multiplier = getDifficultyMultiplier();
     UNLOCKS.forEach(unlock => {
-        if (score >= unlock.score && !unlockedSections.has(unlock.section)) {
+        if (totalScore >= unlock.score * multiplier && !unlockedSections.has(unlock.section)) {
             unlockSection(unlock.section);
         }
     });
@@ -223,6 +232,37 @@ function updateScore(points) {
     scoreElement.textContent = score;
     checkUnlocks();
 }
+
+function setExternalUnlockScore(value) {
+    const numeric = Number(value);
+    externalUnlockScore = Number.isFinite(numeric) ? Math.max(0, Math.floor(numeric)) : 0;
+    checkUnlocks();
+}
+
+window.setExternalUnlockScore = setExternalUnlockScore;
+
+function setTetrisScore(value) {
+    const numeric = Number(value);
+    score = Number.isFinite(numeric) ? Math.max(0, Math.floor(numeric)) : 0;
+    scoreElement.textContent = score;
+    checkUnlocks();
+}
+
+function getTetrisScore() {
+    return score;
+}
+
+function setTetrisPaused(paused) {
+    if (!gameStarted || gameOver) return;
+    isPaused = Boolean(paused);
+    canvas.classList.toggle('is-paused', isPaused);
+    updatePauseButtonState();
+    draw();
+}
+
+window.setTetrisScore = setTetrisScore;
+window.getTetrisScore = getTetrisScore;
+window.setTetrisPaused = setTetrisPaused;
 
 function unlockAllSections() {
     UNLOCKS.forEach((unlock) => {
@@ -758,16 +798,21 @@ function drawGameOver() {
 }
 
 // Reset game
-function resetGame() {
+function resetGame(options = {}) {
+    const { keepScore = false } = options;
     board.forEach(row => row.fill(0));
-    score = 0;
+    if (!keepScore) {
+        score = 0;
+    }
     scoreElement.textContent = score;
     gameOver = false;
     gameStarted = false;
     isPaused = false;
     dropCounter = 0;
     lastTime = 0;
-    unlockedSections.clear();
+    if (!keepScore) {
+        unlockedSections.clear();
+    }
     nextQueue = [];
 
     Object.keys(pieceDrought).forEach((key) => {
@@ -785,16 +830,20 @@ function resetGame() {
         difficultyWrapper.style.display = 'flex';
     }
     
-    // Re-lock all sections
-    UNLOCKS.forEach(unlock => {
-        const section = document.getElementById(unlock.section);
-        if (section) {
-            section.classList.add('locked');
-            section.classList.remove('unlocked');
-        }
-    });
+    if (!keepScore) {
+        // Re-lock all sections
+        UNLOCKS.forEach(unlock => {
+            const section = document.getElementById(unlock.section);
+            if (section) {
+                section.classList.add('locked');
+                section.classList.remove('unlocked');
+            }
+        });
 
-    resetUnlockBadges();
+        resetUnlockBadges();
+    }
+
+    checkUnlocks();
     
     drawBoard();
     drawScoreOverlay();
@@ -871,7 +920,7 @@ document.addEventListener('keydown', (e) => {
     if (gameOver) {
         if (e.key === ' ') {
             e.preventDefault();
-            resetGame();
+            resetGame({ keepScore: true });
             startGame();
         }
         return;
@@ -904,7 +953,7 @@ function handleControlAction(action) {
     }
 
     if (gameOver) {
-        resetGame();
+        resetGame({ keepScore: true });
         startGame();
     }
 
@@ -941,7 +990,7 @@ if (mobileStartButton) {
     mobileStartButton.addEventListener('pointerdown', (event) => {
         event.preventDefault();
         if (gameOver) {
-            resetGame();
+            resetGame({ keepScore: true });
         }
         startGame();
     }, { passive: false });
