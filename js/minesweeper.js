@@ -247,6 +247,56 @@ function initMinesweeper() {
         updateScore();
     }
 
+    function getEffectsLayer() {
+        let layer = boardEl.querySelector('.minesweeper-effects');
+        if (!layer) {
+            layer = document.createElement('div');
+            layer.className = 'minesweeper-effects';
+            boardEl.appendChild(layer);
+        }
+        return layer;
+    }
+
+    function getCellCenter(cell) {
+        const cellRect = cell.getBoundingClientRect();
+        const boardRect = boardEl.getBoundingClientRect();
+        const x = cellRect.left - boardRect.left + cellRect.width / 2;
+        const y = cellRect.top - boardRect.top + cellRect.height / 2;
+        return { x, y };
+    }
+
+    function spawnExplosion(cell) {
+        const layer = getEffectsLayer();
+        const { x, y } = getCellCenter(cell);
+        const burst = document.createElement('span');
+        burst.className = 'mine-explosion';
+        burst.style.left = `${x}px`;
+        burst.style.top = `${y}px`;
+        layer.appendChild(burst);
+        setTimeout(() => burst.remove(), 500);
+    }
+
+    function spawnConfetti(cell) {
+        const layer = getEffectsLayer();
+        const { x, y } = getCellCenter(cell);
+        const colors = ['#00f0f0', '#f0f000', '#a000f0', '#00f000', '#f00000', '#0000f0', '#f0a000'];
+        const count = 6;
+
+        for (let i = 0; i < count; i++) {
+            const piece = document.createElement('span');
+            piece.className = 'mine-confetti';
+            piece.style.left = `${x}px`;
+            piece.style.top = `${y}px`;
+            piece.style.background = colors[i % colors.length];
+            const dx = (Math.random() * 30 - 15).toFixed(1);
+            const dy = (Math.random() * 30 - 20).toFixed(1);
+            piece.style.setProperty('--dx', `${dx}px`);
+            piece.style.setProperty('--dy', `${dy}px`);
+            layer.appendChild(piece);
+            setTimeout(() => piece.remove(), 700);
+        }
+    }
+
     function applyRevealScore() {
         const { multiplier } = getCurrentSettings();
         let delta = 0;
@@ -266,10 +316,15 @@ function initMinesweeper() {
         }
     }
 
+    function getRenderedCell(row, col) {
+        return boardEl.querySelector(`.minesweeper-cell[data-row="${row}"][data-col="${col}"]`);
+    }
+
     function handleReveal(cell) {
         if (isGameOver) return;
         const row = Number(cell.dataset.row);
         const col = Number(cell.dataset.col);
+        const cellValue = game.board[row][col];
         const result = game.reveal(row, col);
 
         applyRevealScore();
@@ -280,6 +335,7 @@ function initMinesweeper() {
             setStatus('Game Over', 'lose');
             const { multiplier } = getCurrentSettings();
             score = Math.max(0, Math.round(score - 50 * multiplier));
+            spawnExplosion(cell);
         } else if (game.isWon()) {
             isGameOver = true;
             revealAllMines();
@@ -287,11 +343,23 @@ function initMinesweeper() {
             const { multiplier } = getCurrentSettings();
             const winBonus = Math.round((game.rows * game.cols + game.mineCount * 10) * multiplier);
             score = Math.max(0, score + winBonus);
+            if (cellValue !== 'M') {
+                spawnConfetti(cell);
+            }
         } else {
             setStatus('', '');
         }
 
         renderBoard();
+
+        const renderedCell = getRenderedCell(row, col);
+        if (renderedCell) {
+            if (result === 'gameOver') {
+                spawnExplosion(renderedCell);
+            } else if (cellValue !== 'M') {
+                spawnConfetti(renderedCell);
+            }
+        }
     }
 
     function handleFlag(cell) {

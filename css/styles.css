@@ -656,6 +656,67 @@ main {
     border-radius: 12px;
     box-shadow: 0 0 18px var(--accent-glow);
     transition: background 0.3s ease, border 0.3s ease;
+    position: relative;
+    }
+    
+    .minesweeper-effects {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        overflow: visible;
+    }
+    
+    .mine-explosion {
+        position: absolute;
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(255, 140, 0, 0.95) 0%, rgba(255, 0, 0, 0.85) 40%, rgba(0, 0, 0, 0) 70%);
+        transform: translate(-50%, -50%) scale(0.4);
+        animation: mine-explosion 420ms ease-out forwards;
+    }
+    
+    @keyframes mine-explosion {
+        0% {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(0.4);
+        }
+    
+        70% {
+            opacity: 0.9;
+            transform: translate(-50%, -50%) scale(1.6);
+        }
+    
+        100% {
+            opacity: 0;
+            transform: translate(-50%, -50%) scale(2.2);
+        }
+    }
+    
+    .mine-confetti {
+        position: absolute;
+        width: 6px;
+        height: 6px;
+        border-radius: 2px;
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.6);
+        animation: mine-confetti 650ms ease-out forwards;
+    }
+    
+    @keyframes mine-confetti {
+        0% {
+            opacity: 0;
+            transform: translate(-50%, -50%) scale(0.6);
+        }
+    
+        20% {
+            opacity: 1;
+        }
+    
+        100% {
+            opacity: 0;
+            transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(1.1);
+        }
 }
 
 .minesweeper-cell {
