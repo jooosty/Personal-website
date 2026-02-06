@@ -369,6 +369,126 @@ button {
     pointer-events: auto;
     box-shadow: 0 0 12px var(--accent-glow);
 }
+.car-layer {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: -2px;
+    height: 180px;
+    pointer-events: auto;
+    overflow: hidden;
+    z-index: 6;
+}
+
+.car-sprite {
+    position: absolute;
+    bottom: 0;
+    right: -240px;
+    animation: car-drive 5s linear forwards;
+    filter: drop-shadow(0 0 12px rgba(0, 0, 0, 0.45));
+    pointer-events: auto;
+    cursor: pointer;
+}
+
+.car-sprite.is-reverse {
+    right: auto;
+    left: -240px;
+    animation-name: car-drive-reverse;
+}
+
+.car-image {
+    width: 200px;
+    height: auto;
+    display: block;
+}
+
+.car-bubble {
+    position: absolute;
+    bottom: 110px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.8);
+    color: #fff;
+    padding: 6px 10px;
+    border-radius: 10px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.4px;
+    white-space: nowrap;
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.45);
+    animation: car-bubble 5s ease-out forwards;
+    pointer-events: none;
+}
+
+.car-bubble::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    bottom: -6px;
+    transform: translateX(-50%);
+    border-width: 6px 6px 0 6px;
+    border-style: solid;
+    border-color: rgba(0, 0, 0, 0.8) transparent transparent transparent;
+}
+
+.car-image.is-reverse {
+    transform: scaleX(-1);
+}
+
+@keyframes car-bubble {
+    0% {
+        transform: translateX(-50%) scale(0.9);
+        opacity: 0;
+    }
+
+    15% {
+        transform: translateX(-50%) scale(1);
+        opacity: 1;
+    }
+
+    80% {
+        transform: translateX(-50%) scale(1);
+        opacity: 1;
+    }
+
+    100% {
+        transform: translateX(-50%) scale(1);
+        opacity: 0;
+    }
+}
+
+@keyframes car-drive {
+    0% {
+        transform: translateX(0);
+        opacity: 0;
+    }
+
+    5% {
+        opacity: 1;
+    }
+
+    100% {
+        transform: translateX(-120vw);
+        opacity: 1;
+    }
+}
+
+@keyframes car-drive-reverse {
+    0% {
+        transform: translateX(0);
+        opacity: 0;
+    }
+
+    5% {
+        opacity: 1;
+    }
+
+    100% {
+        transform: translateX(120vw);
+        opacity: 1;
+    }
+}
 /* Header */
 header {
     max-width: 1400px;

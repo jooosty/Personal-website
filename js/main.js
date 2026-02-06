@@ -510,3 +510,78 @@ if (document.readyState === 'loading') {
 } else {
     initGameToggle();
 }
+
+const textBubbleTexts = [
+    "DONT TOUCH ME",
+    "LEAVE ME ALONE",
+    "GO AWAY",
+    "STOP IT",
+    "BACK OFF",
+    "NOT NOW",
+    "I'M BUSY",
+    "NOPE"
+];
+
+function initCarDrive() {
+    const layer = document.querySelector('.car-layer');
+    if (!layer) return;
+
+    function spawnCar() {
+        const car = document.createElement('div');
+        car.className = 'car-sprite';
+        const isReverse = Math.random() < 0.5;
+        if (isReverse) {
+            car.classList.add('is-reverse');
+        }
+
+        const carImage = document.createElement('img');
+        carImage.src = 'media/images/lykan_hypersport_0.png';
+        carImage.alt = '';
+        carImage.className = 'car-image';
+        if (isReverse) {
+            carImage.classList.add('is-reverse');
+        }
+        car.appendChild(carImage);
+
+        car.addEventListener('click', (event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            if (car.dataset.paused === 'true') return;
+
+            car.dataset.paused = 'true';
+            car.style.animationPlayState = 'paused';
+
+            const bubble = document.createElement('span');
+            bubble.className = 'car-bubble';
+            bubble.textContent = textBubbleTexts[Math.floor(Math.random() * textBubbleTexts.length)];
+            car.appendChild(bubble);
+
+            setTimeout(() => {
+                bubble.remove();
+                car.style.animationPlayState = 'running';
+                car.dataset.paused = 'false';
+            }, 3000);
+        });
+
+        layer.appendChild(car);
+        car.addEventListener('animationend', () => {
+            car.remove();
+        });
+    }
+
+    function scheduleNext() {
+        const delay = 5000 + Math.random() * 10000;
+        setTimeout(() => {
+            spawnCar();
+            scheduleNext();
+        }, delay);
+    }
+
+    scheduleNext();
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initCarDrive);
+} else {
+    initCarDrive();
+}
