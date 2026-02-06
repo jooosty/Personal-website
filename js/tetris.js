@@ -257,6 +257,13 @@ function setTetrisPaused(paused) {
     isPaused = Boolean(paused);
     canvas.classList.toggle('is-paused', isPaused);
     updatePauseButtonState();
+    if (tetrisAudio) {
+        if (isPaused) {
+            tetrisAudio.pause();
+        } else {
+            tetrisAudio.play().catch(() => {});
+        }
+    }
     draw();
 }
 
@@ -858,6 +865,13 @@ function togglePause() {
     isPaused = !isPaused;
     canvas.classList.toggle('is-paused', isPaused);
     updatePauseButtonState();
+    if (tetrisAudio) {
+        if (isPaused) {
+            tetrisAudio.pause();
+        } else {
+            tetrisAudio.play().catch(() => {});
+        }
+    }
     draw();
 }
 
