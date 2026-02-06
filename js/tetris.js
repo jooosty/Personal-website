@@ -261,7 +261,6 @@ function createPiece() {
     }, shapes[0]);
 
     if ((pieceDrought[maxDroughtShape] || 0) > droughtThreshold) {
-        console.debug(`[tetris] drought override: picking ${maxDroughtShape} with drought of ${pieceDrought[maxDroughtShape]}`);
         randomShape = maxDroughtShape;
     }
 
@@ -271,15 +270,6 @@ function createPiece() {
         } else {
             pieceDrought[shapeKey] = (pieceDrought[shapeKey] || 0) + 1;
         }
-    });
-
-    console.debug('[tetris] piece roll', {
-        picked: randomShape,
-        drought: { ...pieceDrought },
-        weights: weighted.reduce((acc, item) => {
-            acc[item.shapeKey] = item.weight;
-            return acc;
-        }, {})
     });
 
     const shape = SHAPES[randomShape];
