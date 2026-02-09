@@ -271,6 +271,11 @@ let tetrisTimeoutId = null;
 const scanSequence = ['s', 'c', 'a', 'n'];
 let scanIndex = 0;
 let scanTimeoutId = null;
+const pictureSequence = ['p', 'i', 'c', 't', 'u', 'r', 'e'];
+let pictureIndex = 0;
+let pictureTimeoutId = null;
+let pictureOverlay = null;
+let pictureEscapeHandler = null;
 let zHoldTimer = null;
 let zTriggered = false;
 let scrollLockTimeoutId = null;
@@ -459,6 +464,145 @@ function handleScanSequence(key) {
     }, 1200);
 }
 
+function extractAvatarUrlsFromData(data) {
+    const items = data && Array.isArray(data.data) ? data.data : [];
+    const urls = [];
+
+    items.forEach((item) => {
+        if (!item || !item.avatar) return;
+        const avatar = item.avatar;
+        if (typeof avatar === 'string' && avatar.trim()) {
+            urls.push(avatar.trim());
+            return;
+        }
+    });
+
+    return urls;
+}
+
+function getAvailablePictureUrls() {
+    const urls = new Set();
+    const avatarData = window.avatarData;
+    if (avatarData) {
+        extractAvatarUrlsFromData(avatarData).forEach((url) => urls.add(url));
+    }
+
+    document.querySelectorAll('img').forEach((img) => {
+        const src = img.getAttribute('src');
+        if (src) {
+            urls.add(src);
+        }
+    });
+
+    return Array.from(urls);
+}
+
+function closePictureGallery() {
+    if (!pictureOverlay) return;
+    if (pictureEscapeHandler) {
+        document.removeEventListener('keydown', pictureEscapeHandler);
+        pictureEscapeHandler = null;
+    }
+    pictureOverlay.remove();
+    pictureOverlay = null;
+    document.body.classList.remove('no-scroll');
+}
+
+function showPictureGallery() {
+    if (pictureOverlay) {
+        closePictureGallery();
+        return;
+    }
+
+    const urls = getAvailablePictureUrls();
+
+    const overlay = document.createElement('div');
+    overlay.className = 'picture-gallery';
+
+    const panel = document.createElement('div');
+    panel.className = 'picture-gallery__panel';
+
+    const header = document.createElement('div');
+    header.className = 'picture-gallery__header';
+
+    const title = document.createElement('h2');
+    title.textContent = 'Available Pictures';
+
+    const closeBtn = document.createElement('button');
+    closeBtn.type = 'button';
+    closeBtn.className = 'picture-gallery__close';
+    closeBtn.setAttribute('aria-label', 'Close picture gallery');
+    closeBtn.textContent = 'Close';
+    closeBtn.addEventListener('click', closePictureGallery);
+
+    header.appendChild(title);
+    header.appendChild(closeBtn);
+
+    const grid = document.createElement('div');
+    grid.className = 'picture-gallery__grid';
+
+    if (urls.length) {
+        urls.forEach((url) => {
+            const item = document.createElement('div');
+            item.className = 'picture-gallery__item';
+
+            const img = document.createElement('img');
+            img.src = url;
+            img.alt = 'Picture preview';
+            img.loading = 'lazy';
+
+            item.appendChild(img);
+            grid.appendChild(item);
+        });
+    } else {
+        const empty = document.createElement('p');
+        empty.className = 'picture-gallery__empty';
+        empty.textContent = 'No pictures available yet.';
+        grid.appendChild(empty);
+    }
+
+    panel.appendChild(header);
+    panel.appendChild(grid);
+    overlay.appendChild(panel);
+
+    overlay.addEventListener('click', (event) => {
+        if (event.target === overlay) {
+            closePictureGallery();
+        }
+    });
+
+    pictureEscapeHandler = (event) => {
+        if (event.key === 'Escape') {
+            closePictureGallery();
+        }
+    };
+    document.addEventListener('keydown', pictureEscapeHandler);
+
+    document.body.appendChild(overlay);
+    document.body.classList.add('no-scroll');
+    pictureOverlay = overlay;
+}
+
+function handlePictureSequence(key) {
+    if (key === pictureSequence[pictureIndex]) {
+        pictureIndex += 1;
+        if (pictureIndex === pictureSequence.length) {
+            showPictureGallery();
+            pictureIndex = 0;
+        }
+    } else {
+        pictureIndex = key === pictureSequence[0] ? 1 : 0;
+    }
+
+    if (pictureTimeoutId) {
+        clearTimeout(pictureTimeoutId);
+    }
+
+    pictureTimeoutId = setTimeout(() => {
+        pictureIndex = 0;
+    }, 1200);
+}
+
 document.addEventListener('keydown', (e) => {
     if (e.code === 'KeyZ' && !zHoldTimer && !zTriggered) {
         zHoldTimer = setTimeout(() => {
@@ -471,6 +615,7 @@ document.addEventListener('keydown', (e) => {
         handleRollSequence(e.key.toLowerCase());
         handleTetrisSequence(e.key.toLowerCase());
         handleScanSequence(e.key.toLowerCase());
+        handlePictureSequence(e.key.toLowerCase());
     }
 
     if (e.key) {

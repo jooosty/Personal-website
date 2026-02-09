@@ -319,6 +319,93 @@ body.mine-shake {
         transform: translateY(120vh) rotate(calc(var(--rotate) + 220deg));
     }
 }
+.picture-gallery {
+    position: fixed;
+    inset: 0;
+    z-index: 10050;
+    display: grid;
+    place-items: center;
+    padding: 24px;
+    background: rgba(0, 0, 0, 0.72);
+    backdrop-filter: blur(6px);
+}
+
+.picture-gallery__panel {
+    width: min(1100px, 100%);
+    max-height: 85vh;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 18px 20px;
+    border-radius: 16px;
+    background: var(--section-bg);
+    border: 2px solid var(--section-border);
+    box-shadow: 0 18px 60px rgba(0, 0, 0, 0.4);
+    overflow: hidden;
+}
+
+.picture-gallery__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.picture-gallery__header h2 {
+    margin: 0;
+    font-size: 1.3rem;
+    color: var(--text-primary);
+}
+
+.picture-gallery__close {
+    background: var(--badge-bg);
+    border: 2px solid var(--badge-border);
+    color: var(--text-primary);
+    padding: 6px 14px;
+    border-radius: 999px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.picture-gallery__close:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 16px var(--accent-glow);
+}
+
+.picture-gallery__grid {
+    flex: 1;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 14px;
+    padding: 10px;
+    border-radius: 12px;
+    background: rgba(0, 0, 0, 0.18);
+    overflow: auto;
+}
+
+.picture-gallery__item {
+    display: grid;
+    place-items: center;
+    padding: 8px;
+    border-radius: 12px;
+    border: 1px solid var(--section-border);
+    background: rgba(0, 0, 0, 0.2);
+}
+
+.picture-gallery__item img {
+    width: 100%;
+    max-height: 140px;
+    object-fit: cover;
+    border-radius: 10px;
+}
+
+.picture-gallery__empty {
+    color: var(--text-primary);
+    font-weight: 600;
+    text-align: center;
+    margin: auto;
+}
 a {
     color: #0066cc;
     text-decoration: none;
