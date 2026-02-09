@@ -21,6 +21,10 @@
         <div class="game-section">
             <h1>Tetris Challenge</h1>
             <div class="tetris-stage">
+                <aside class="saved-piece" aria-label="Saved piece preview">
+                    <h2>Saved Piece</h2>
+                    <canvas id="saved-piece-preview" class="saved-piece-preview"></canvas>
+                </aside>
                 <div class="tetris-wrap">
                     <button id="pause-toggle" class="pause-toggle" type="button" aria-label="Pause game">
                         Pause
@@ -30,6 +34,11 @@
                     <div class="tetris-difficulty">
                         <label for="difficulty">Difficulty:</label>
                         <input type="range" id="difficulty" name="difficulty" min="1" max="5" value="3">
+                        <div class="block-style" role="group" aria-label="Block style">
+                            <span class="block-style-label">Blocks:</span>
+                            <button type="button" class="block-style-btn is-active" data-style="avatars">Pictures</button>
+                            <button type="button" class="block-style-btn" data-style="colors">Colors</button>
+                        </div>
                     </div>
                     <div class="mobile-controls" aria-label="Tetris controls">
                         <button type="button" class="control-btn" data-action="left">Left</button>

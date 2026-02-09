@@ -11,6 +11,7 @@ const difficultyWrapper = document.querySelector('.tetris-difficulty');
 const mobileStartButton = document.getElementById('mobile-start');
 const pauseToggleButton = document.getElementById('pause-toggle');
 const unlockAllButton = document.getElementById('unlock-all');
+const blockStyleButtons = document.querySelectorAll('.block-style-btn');
 const tetrisAudio = document.getElementById('tetris-audio');
 const lineClearAudio = document.getElementById('tetris-line-clear');
 const unlockAudio = document.getElementById('unlock-audio');
@@ -170,6 +171,95 @@ let nextQueue = [];
 let previewCanvases = [];
 let previewContexts = [];
 
+let avatarImages = [];
+let avatarImageIndex = 0;
+let avatarCount = 0;
+let useAvatarBlocks = true;
+
+function getRandomAvatarImage() {
+    if (!avatarImages.length) return null;
+    const image = avatarImages[avatarImageIndex % avatarImages.length];
+    avatarImageIndex += 1;
+    return image || null;
+}
+
+function buildImageMatrix(matrix) {
+    return matrix.map((row) => row.map((cell) => (cell ? getRandomAvatarImage() : null)));
+}
+
+function rotateMatrixClockwise(matrix) {
+    if (!matrix || !matrix.length) return matrix;
+    const rotated = [];
+    for (let i = 0; i < matrix[0].length; i++) {
+        const row = [];
+        for (let j = matrix.length - 1; j >= 0; j--) {
+            row.push(matrix[j][i]);
+        }
+        rotated.push(row);
+    }
+    return rotated;
+}
+
+function ensurePieceImages(piece) {
+    if (!piece || !piece.matrix) return;
+    if (!useAvatarBlocks || !avatarImages.length) return;
+
+    const hasMatrix = Array.isArray(piece.imageMatrix);
+    const matrixHasImages = hasMatrix && piece.imageMatrix.some((row) => row && row.some((img) => img));
+
+    if (!hasMatrix || !matrixHasImages) {
+        piece.imageMatrix = buildImageMatrix(piece.matrix);
+        return;
+    }
+
+    piece.imageMatrix = piece.imageMatrix.map((row, r) =>
+        row.map((img, c) => (piece.matrix[r] && piece.matrix[r][c] && !img ? getRandomAvatarImage() : img))
+    );
+}
+
+function getPieceCellImage(piece, row, col) {
+    if (!useAvatarBlocks) return null;
+    if (piece && piece.imageMatrix && piece.imageMatrix[row]) {
+        return piece.imageMatrix[row][col] || null;
+    }
+    return piece && piece.image ? piece.image : null;
+}
+
+function applyBlockStyle(style) {
+    useAvatarBlocks = style === 'avatars';
+
+    blockStyleButtons.forEach((button) => {
+        const isActive = button.dataset.style === style;
+        button.classList.toggle('is-active', isActive);
+        button.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+    });
+
+    if (useAvatarBlocks) {
+        if (useAvatarBlocks) {
+            if (currentPiece && currentPiece.matrix) {
+                currentPiece.imageMatrix = buildImageMatrix(currentPiece.matrix);
+            }
+            if (savedPiece && savedPiece.matrix) {
+                savedPiece.imageMatrix = buildImageMatrix(savedPiece.matrix);
+            }
+            if (nextQueue.length) {
+                nextQueue = nextQueue.map((piece) => {
+                    if (!piece || !piece.matrix) return piece;
+                    return { ...piece, imageMatrix: buildImageMatrix(piece.matrix) };
+                });
+            }
+        }
+    }
+
+    updateNextPreview();
+    if (!gameStarted) {
+        drawBoard();
+        displayInstructions();
+    } else {
+        draw();
+    }
+}
+
 // Check and unlock sections based on score
 function checkUnlocks() {
     const totalScore = score + externalUnlockScore;
@@ -324,6 +414,7 @@ function createPiece() {
     return {
         shape: randomShape,
         color: COLORS[randomShape],
+        imageMatrix: buildImageMatrix(shape),
         x: Math.floor(COLS / 2) - Math.floor(shape[0].length / 2),
         y: 0,
         matrix: shape
@@ -340,6 +431,42 @@ function getPreviewCountFromDifficulty() {
 function getPreviewDisplayCount() {
     const previewCount = getPreviewCountFromDifficulty();
     return previewCount === 0 ? 1 : previewCount;
+}
+
+function extractAvatarUrls(data) {
+    const items = (data && data.data) ? data.data : [];
+    const urls = [];
+
+    items.forEach((item) => {
+        if (!item || !item.avatar) return;
+        const avatar = item.avatar;
+        if (typeof avatar === 'string' && avatar.trim()) {
+            urls.push(avatar.trim());
+            return;
+        }
+        if (typeof avatar === 'object' && avatar.id) {
+            urls.push(`https://fdnd.directus.app/assets/${avatar.id}`);
+        }
+    });
+
+    return urls;
+}
+
+function loadAvatarImages(urls) {
+    const unique = Array.from(new Set(urls)).filter(Boolean);
+    if (!unique.length) {
+        avatarImages = [];
+        return Promise.resolve([]);
+    }
+
+    const loaders = unique.map((url) => new Promise((resolve) => {
+        const img = new Image();
+        img.onload = () => resolve(img);
+        img.onerror = () => resolve(null);
+        img.src = url;
+    }));
+
+    return Promise.all(loaders).then((images) => images.filter(Boolean));
 }
 
 function syncPreviewCanvases() {
@@ -436,6 +563,8 @@ function drawNextPreview(ctx, piece) {
         return;
     }
 
+    ensurePieceImages(piece);
+
     const matrix = piece.matrix;
     const maxWidth = Math.max(4, matrix[0].length);
     const maxHeight = Math.max(4, matrix.length);
@@ -455,8 +584,13 @@ function drawNextPreview(ctx, piece) {
     for (let row = 0; row < matrix.length; row++) {
         for (let col = 0; col < matrix[row].length; col++) {
             if (matrix[row][col]) {
-                ctx.fillStyle = piece.color;
-                ctx.fillRect(offsetX + col * block, offsetY + row * block, block, block);
+                const cellImage = getPieceCellImage(piece, row, col);
+                if (cellImage) {
+                    ctx.drawImage(cellImage, offsetX + col * block, offsetY + row * block, block, block);
+                } else {
+                    ctx.fillStyle = piece.color;
+                    ctx.fillRect(offsetX + col * block, offsetY + row * block, block, block);
+                }
                 ctx.strokeStyle = '#000';
                 ctx.lineWidth = 2;
                 ctx.strokeRect(offsetX + col * block, offsetY + row * block, block, block);
@@ -488,12 +622,27 @@ function updateNextPreview() {
 }
 
 // Draw a block
-function drawBlock(x, y, color) {
-    ctx.fillStyle = color;
-    ctx.fillRect(x * BLOCK_SIZE, y * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
-    ctx.strokeStyle = '#000';
+function drawBlock(x, y, cell) {
+    let color = cell;
+    let image = null;
+
+    if (cell && typeof cell === 'object') {
+        color = cell.color || '#666';
+        image = cell.image || null;
+    }
+
+    if (image && useAvatarBlocks) {
+        ctx.drawImage(image, x * BLOCK_SIZE, y * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
+    } else {
+        ctx.fillStyle = color;
+        ctx.fillRect(x * BLOCK_SIZE, y * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
+    }
+
     ctx.lineWidth = 2;
-    ctx.strokeRect(x * BLOCK_SIZE, y * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
+    ctx.strokeStyle = '#ffffff';
+    ctx.strokeRect(x * BLOCK_SIZE + 0.5, y * BLOCK_SIZE + 0.5, BLOCK_SIZE - 1, BLOCK_SIZE - 1);
+    ctx.strokeStyle = '#000000';
+    ctx.strokeRect(x * BLOCK_SIZE + 1.5, y * BLOCK_SIZE + 1.5, BLOCK_SIZE - 3, BLOCK_SIZE - 3);
 }
 
 // Draw the board
@@ -538,10 +687,13 @@ function drawBoard() {
 // Draw the current piece
 function drawPiece() {
     const { matrix, x, y, color } = currentPiece;
+    if (!matrix) return;
+    ensurePieceImages(currentPiece);
     for (let row = 0; row < matrix.length; row++) {
         for (let col = 0; col < matrix[row].length; col++) {
             if (matrix[row][col]) {
-                drawBlock(x + col, y + row, color);
+                const image = getPieceCellImage(currentPiece, row, col);
+                drawBlock(x + col, y + row, { color, image });
             }
         }
     }
@@ -566,13 +718,15 @@ function drawGhostPiece() {
 
     const ghostY = getGhostPieceY();
     const { matrix, x, color } = currentPiece;
+    ensurePieceImages(currentPiece);
 
     ctx.save();
     ctx.globalAlpha = 0.35;
     for (let row = 0; row < matrix.length; row++) {
         for (let col = 0; col < matrix[row].length; col++) {
             if (matrix[row][col]) {
-                drawBlock(x + col, ghostY + row, color);
+                const image = getPieceCellImage(currentPiece, row, col);
+                drawBlock(x + col, ghostY + row, { color, image });
             }
         }
     }
@@ -599,6 +753,7 @@ function collide(piece = currentPiece) {
 // Merge piece to board
 function merge() {
     const { matrix, x, y, color } = currentPiece;
+    ensurePieceImages(currentPiece);
     for (let row = 0; row < matrix.length; row++) {
         for (let col = 0; col < matrix[row].length; col++) {
             if (matrix[row][col]) {
@@ -606,7 +761,8 @@ function merge() {
                     gameOver = true;
                     return;
                 }
-                board[y + row][x + col] = color;
+                const image = getPieceCellImage(currentPiece, row, col);
+                board[y + row][x + col] = image ? { color, image } : color;
             }
         }
     }
@@ -663,7 +819,7 @@ function drop() {
         currentPiece.y--;
         merge();
         clearLines();
-        
+        thisTurnSaved = false;
         if (gameOver) {
             return;
         }
@@ -688,7 +844,11 @@ function hardDrop() {
 // Rotate piece
 function rotatePiece() {
     const originalMatrix = currentPiece.matrix;
+    const originalImageMatrix = currentPiece.imageMatrix ? currentPiece.imageMatrix.map((row) => row.slice()) : null;
     currentPiece.matrix = rotate(originalMatrix);
+    if (currentPiece.imageMatrix) {
+        currentPiece.imageMatrix = rotateMatrixClockwise(currentPiece.imageMatrix);
+    }
     
     if (collide()) {
         currentPiece.x++;
@@ -697,8 +857,51 @@ function rotatePiece() {
             if (collide()) {
                 currentPiece.x++;
                 currentPiece.matrix = originalMatrix;
+                if (originalImageMatrix) {
+                    currentPiece.imageMatrix = originalImageMatrix;
+                }
             }
         }
+    }
+}
+
+let savedPiece;
+
+// Save piece
+function savePiece() {
+    if (thisTurnSaved) {return};
+    if (savedPiece) {
+        const temp = savedPiece;
+        savedPiece = currentPiece;
+        currentPiece = temp;
+        currentPiece.x = Math.floor(COLS / 2) - Math.floor(currentPiece.matrix[0].length / 2);
+        currentPiece.y = 0;
+        console.log('Swapped current piece with saved piece' + currentPiece.shape);
+
+    } else {
+        savedPiece = currentPiece;
+        currentPiece = getNextPiece();
+    }
+    drawSavedPiecePreview();
+    thisTurnSaved = true;
+}
+
+// Draw saved piece preview
+function drawSavedPiecePreview() {
+    const savedPreviewCanvas = document.getElementById('saved-piece-preview');
+    if (!savedPreviewCanvas) return;
+    const savedPreviewCtx = savedPreviewCanvas.getContext('2d');
+    if (savedPiece) {
+        drawNextPreview(savedPreviewCtx, savedPiece);
+    } else {
+        const isLightMode = document.body.classList.contains('light-mode');
+        const bgColor = isLightMode ? '#fff' : '#000';
+        savedPreviewCtx.fillStyle = bgColor;
+        savedPreviewCtx.fillRect(0, 0, savedPreviewCanvas.width, savedPreviewCanvas.height);
+        savedPreviewCtx.fillStyle = isLightMode ? '#1a1a1a' : '#ffffff';
+        savedPreviewCtx.font = 'bold 12px Arial';
+        savedPreviewCtx.textAlign = 'center';
+        savedPreviewCtx.fillText('No piece saved', savedPreviewCanvas.width / 2, savedPreviewCanvas.height / 2);
     }
 }
 
@@ -957,6 +1160,10 @@ document.addEventListener('keydown', (e) => {
             hardDrop();
             break;
     }
+
+    if (e.key === 'c') {
+        savePiece();
+    }
     
     draw();
 });
@@ -1022,8 +1229,15 @@ if (unlockAllButton) {
     });
 }
 
+blockStyleButtons.forEach((button) => {
+    button.addEventListener('click', () => {
+        applyBlockStyle(button.dataset.style || 'avatars');
+    });
+});
+
 // Initialize
 resetGame();
+applyBlockStyle('avatars');
 
 // Display instructions with theme awareness
 function displayInstructions() {
@@ -1061,3 +1275,48 @@ if (typeof MutationObserver !== 'undefined') {
     
     observer.observe(document.body, { attributes: true });
 }
+
+
+// Get all avatar data from api
+async function getAvatarData() {
+    try {
+        const response = await fetch(
+            'https://fdnd.directus.app/items/person?fields=avatar&filter[squads][squad_id][tribe][name]=CMD%20Minor%20Web%20Dev&filter[squads][squad_id][cohort]=2526');
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        const data = await response.json();
+        window.avatarData = data;
+        const avatarUrls = extractAvatarUrls(data);
+        avatarCount = avatarUrls.length;
+        const images = await loadAvatarImages(avatarUrls);
+        avatarImages = images;
+        avatarImageIndex = 0;
+        if (currentPiece && currentPiece.matrix) {
+            currentPiece.imageMatrix = buildImageMatrix(currentPiece.matrix);
+        }
+        if (savedPiece && savedPiece.matrix) {
+            savedPiece.imageMatrix = buildImageMatrix(savedPiece.matrix);
+        }
+        if (nextQueue.length) {
+            nextQueue = nextQueue.map((piece) => {
+                if (!piece || !piece.matrix) return piece;
+                return { ...piece, imageMatrix: buildImageMatrix(piece.matrix) };
+            });
+        }
+        console.log('Avatar data loaded:', data);
+        console.log('Non-null avatars:', avatarCount, 'Loaded images:', avatarImages.length);
+        updateNextPreview();
+        if (!gameStarted) {
+            drawBoard();
+            displayInstructions();
+        } else {
+            draw();
+        }
+    }
+    catch (error) {
+        console.error('Error fetching data:', error);
+    }
+}
+
+getAvatarData();

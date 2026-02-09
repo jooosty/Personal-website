@@ -64,6 +64,44 @@ body.no-scroll {
 .is-hidden {
     display: none !important;
 }
+.block-style {
+    margin-top: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.block-style-label {
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.block-style-btn {
+    border: 1px solid var(--accent-color);
+    background: rgba(0, 0, 0, 0.2);
+    color: var(--text-primary);
+    padding: 6px 10px;
+    border-radius: 999px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: transform 0.15s ease, background 0.2s ease, box-shadow 0.2s ease;
+}
+
+body.light-mode .block-style-btn {
+    background: rgba(255, 255, 255, 0.7);
+}
+
+.block-style-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.2);
+}
+
+.block-style-btn.is-active {
+    background: var(--accent-color);
+    color: #fff;
+    box-shadow: 0 0 12px var(--accent-glow);
+}
 body.barrel-roll {
     animation: barrel-roll 1.2s ease-in-out;
     transform-origin: center center;
@@ -630,9 +668,11 @@ main {
 }
 .tetris-stage {
     display: grid;
-    grid-template-columns: auto 160px;
+    grid-template-columns: minmax(160px, 220px) minmax(320px, 1fr) minmax(160px, 220px);
     gap: 18px;
     align-items: start;
+    justify-content: center;
+        justify-items: center;
 }
 
 .next-preview {
@@ -645,6 +685,8 @@ main {
     gap: 12px;
     align-items: center;
     min-width: 150px;
+    position: relative;
+        z-index: 2;
     transition: background 0.3s ease, border 0.3s ease;
 }
 
@@ -667,6 +709,39 @@ main {
     border-radius: 8px;
     background: var(--canvas-bg);
     box-shadow: 0 0 12px var(--accent-glow);
+    transition: border-color 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
+}
+.saved-piece {
+    background: var(--section-bg);
+    border: 2px solid var(--section-border);
+    border-radius: 12px;
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    align-items: center;
+    min-width: 150px;
+    width: 100%;
+    max-width: 180px;
+    justify-self: center;
+    transition: background 0.3s ease, border 0.3s ease;
+}
+
+.saved-piece h2 {
+    font-size: 1rem;
+    margin: 0;
+    color: var(--text-primary);
+}
+
+.saved-piece-preview {
+    border: 2px solid var(--accent-color);
+    border-radius: 8px;
+    background: var(--canvas-bg);
+    box-shadow: 0 0 12px var(--accent-glow);
+    width: 100%;
+    max-width: 120px;
+    aspect-ratio: 1 / 1;
+    height: auto;
     transition: border-color 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
 }
 .score-display {
