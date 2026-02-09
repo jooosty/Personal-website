@@ -18,7 +18,7 @@
     
     <main>
         <!-- Tetris Game Section -->
-        <div class="game-section">
+        <div id="tetris-section" class="game-section">
             <h1>Tetris Challenge</h1>
             <div class="tetris-stage">
                 <aside class="saved-piece" aria-label="Saved piece preview">
@@ -59,7 +59,7 @@
         </div>
 
         <!-- Minesweeper Section -->
-        <div class="minesweeper-section">
+        <div id="minesweeper-section" class="minesweeper-section">
             <h1>Minesweeper Challenge</h1>
             <div class="minesweeper-stage">
                 <div id="minesweeper-board" class="minesweeper-board"></div>
@@ -78,6 +78,26 @@
                 <input type="range" id="minesweeper-difficulty" name="minesweeper-difficulty" min="1" max="5" value="3">
             </div>
         </div>
+<!-- 2048 Section -->
+<div id="game-2048-section" class="game-section">
+    <h1>2048 Challenge</h1>
+    <div class="game-stage">
+        <div id="game-2048" class="game-2048"></div>
+        <div class="game-info">
+            <p>Score: <span id="score-2048">0</span></p>
+            <button id="reset-2048" class="reset-2048" type="button" aria-label="Reset 2048 game">
+                Reset
+            </button>
+        </div>
+    </div>
+    <div class="game-controls" aria-label="2048 controls">
+        <button type="button" class="control-btn" data-action="up">Up</button>
+        <button type="button" class="control-btn" data-action="down">Down</button>
+        <button type="button" class="control-btn" data-action="left">Left</button>
+        <button type="button" class="control-btn" data-action="right">Right</button>
+    </div>
+</div>
+
         <!-- About Me Section -->
         <div class="about-me">
             
@@ -147,6 +167,7 @@
     <script src="js/main.js"></script>
     <script src="js/tetris.js"></script>
     <script src="js/minesweeper.js"></script>
+    <script src="js/2048.js"></script>
 
 </body>
 </html>

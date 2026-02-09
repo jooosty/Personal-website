@@ -178,7 +178,9 @@ function initMinesweeper() {
     function updateScore() {
         if (!scoreEl) return;
         scoreEl.textContent = String(score);
-        if (typeof window.setExternalUnlockScore === 'function') {
+        if (typeof window.setSharedScore === 'function') {
+            window.setSharedScore(score, 'minesweeper');
+        } else if (typeof window.setExternalUnlockScore === 'function') {
             window.setExternalUnlockScore(score);
         }
     }
@@ -423,6 +425,10 @@ function initMinesweeper() {
 
     window.setMinesweeperScore = setMinesweeperScore;
     window.getMinesweeperScore = getMinesweeperScore;
+
+    if (typeof window.getSharedScore === 'function') {
+        setMinesweeperScore(window.getSharedScore());
+    }
 }
 
 if (document.readyState === 'loading') {

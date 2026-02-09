@@ -3,6 +3,38 @@ const apiUrl = "https://fdnd.directus.app/items/person?filter[id]=297";
 // Store fetched data privately
 const apiData = {};
 
+// Shared score state across games.
+const sharedScoreState = { value: 0 };
+
+function normalizeSharedScore(value) {
+    const numeric = Number(value);
+    return Number.isFinite(numeric) ? Math.max(0, Math.floor(numeric)) : 0;
+}
+
+function applySharedScore(source) {
+    if (source !== 'tetris' && typeof window.setTetrisScore === 'function') {
+        window.setTetrisScore(sharedScoreState.value);
+    }
+    if (source !== 'minesweeper' && typeof window.setMinesweeperScore === 'function') {
+        window.setMinesweeperScore(sharedScoreState.value);
+    }
+    if (source !== '2048' && typeof window.set2048Score === 'function') {
+        window.set2048Score(sharedScoreState.value);
+    }
+    if (typeof window.setExternalUnlockScore === 'function') {
+        window.setExternalUnlockScore(sharedScoreState.value);
+    }
+}
+
+window.setSharedScore = function setSharedScore(value, source) {
+    sharedScoreState.value = normalizeSharedScore(value);
+    applySharedScore(source);
+};
+
+window.getSharedScore = function getSharedScore() {
+    return sharedScoreState.value;
+};
+
 // Lorem Ipsum text for generating placeholders
 const loremWords = ['Lorem', 'ipsum', 'dolor', 'sit', 'amet', 'consectetur', 'adipiscing', 'elit', 'sed', 'do', 'eiusmod', 'tempor', 'incididunt', 'ut', 'labore', 'et', 'dolore', 'magna', 'aliqua', 'enim', 'ad', 'minim', 'veniam', 'quis', 'nostrud', 'exercitation', 'ullamco', 'laboris', 'nisi'];
 
@@ -457,51 +489,46 @@ document.addEventListener('keyup', (e) => {
 });
 
 function initGameToggle() {
-    const tetrisSection = document.querySelector('.game-section');
-    const minesweeperSection = document.querySelector('.minesweeper-section');
+    const tetrisSection = document.getElementById('tetris-section');
+    const minesweeperSection = document.getElementById('minesweeper-section');
+    const game2048Section = document.getElementById('game-2048-section');
     const toggleButton = document.getElementById('different-game');
 
-    if (!tetrisSection || !minesweeperSection || !toggleButton) return;
+    if (!tetrisSection || !minesweeperSection || !game2048Section || !toggleButton) return;
 
-    let showingMinesweeper = false;
+    const games = [
+        { key: 'tetris', label: 'tetris', element: tetrisSection },
+        { key: 'minesweeper', label: 'minesweeper', element: minesweeperSection },
+        { key: '2048', label: '2048', element: game2048Section }
+    ];
+
+    let activeIndex = 0;
 
     function updateToggleUI() {
-        if (showingMinesweeper) {
-            toggleButton.textContent = 'play tetris';
-            toggleButton.setAttribute('aria-label', 'Play Tetris');
-        } else {
-            toggleButton.textContent = 'play minesweeper';
-            toggleButton.setAttribute('aria-label', 'Play Minesweeper');
-        }
+        const nextIndex = (activeIndex + 1) % games.length;
+        const nextGame = games[nextIndex];
+        toggleButton.textContent = `play ${nextGame.label}`;
+        toggleButton.setAttribute('aria-label', `Play ${nextGame.label}`);
     }
 
     function applyVisibility() {
-        tetrisSection.classList.toggle('is-hidden', showingMinesweeper);
-        minesweeperSection.classList.toggle('is-hidden', !showingMinesweeper);
-        if (showingMinesweeper) {
-            if (typeof window.setTetrisPaused === 'function') {
-                window.setTetrisPaused(true);
-            }
-            if (typeof window.getTetrisScore === 'function' && typeof window.setMinesweeperScore === 'function') {
-                window.setMinesweeperScore(window.getTetrisScore());
-            }
-        } else {
-            if (typeof window.getMinesweeperScore === 'function' && typeof window.setTetrisScore === 'function') {
-                window.setTetrisScore(window.getMinesweeperScore());
-            }
-            if (typeof window.setTetrisPaused === 'function') {
-                window.setTetrisPaused(false);
-            }
+        games.forEach((game, index) => {
+            game.element.classList.toggle('is-hidden', index !== activeIndex);
+        });
+
+        if (typeof window.setTetrisPaused === 'function') {
+            window.setTetrisPaused(games[activeIndex].key !== 'tetris');
         }
+
         updateToggleUI();
     }
 
     toggleButton.addEventListener('click', () => {
-        showingMinesweeper = !showingMinesweeper;
+        activeIndex = (activeIndex + 1) % games.length;
         applyVisibility();
     });
 
-    showingMinesweeper = false;
+    activeIndex = 0;
     applyVisibility();
 }
 

@@ -321,6 +321,9 @@ function updateScore(points) {
     score += points;
     scoreElement.textContent = score;
     checkUnlocks();
+    if (typeof window.setSharedScore === 'function') {
+        window.setSharedScore(score, 'tetris');
+    }
 }
 
 function setExternalUnlockScore(value) {
@@ -360,6 +363,10 @@ function setTetrisPaused(paused) {
 window.setTetrisScore = setTetrisScore;
 window.getTetrisScore = getTetrisScore;
 window.setTetrisPaused = setTetrisPaused;
+
+if (typeof window.getSharedScore === 'function') {
+    setTetrisScore(window.getSharedScore());
+}
 
 function unlockAllSections() {
     UNLOCKS.forEach((unlock) => {
@@ -877,8 +884,6 @@ function savePiece() {
         currentPiece = temp;
         currentPiece.x = Math.floor(COLS / 2) - Math.floor(currentPiece.matrix[0].length / 2);
         currentPiece.y = 0;
-        console.log('Swapped current piece with saved piece' + currentPiece.shape);
-
     } else {
         savedPiece = currentPiece;
         currentPiece = getNextPiece();
@@ -1315,8 +1320,6 @@ async function getAvatarData() {
                 return { ...piece, imageMatrix: buildImageMatrix(piece.matrix) };
             });
         }
-        console.log('Avatar data loaded:', data);
-        console.log('Non-null avatars:', avatarCount, 'Loaded images:', avatarImages.length);
         updateNextPreview();
         if (!gameStarted) {
             drawBoard();
