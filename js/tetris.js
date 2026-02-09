@@ -866,6 +866,7 @@ function rotatePiece() {
 }
 
 let savedPiece;
+let thisTurnSaved = false;
 
 // Save piece
 function savePiece() {
