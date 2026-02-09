@@ -378,6 +378,7 @@ button {
     pointer-events: auto;
     overflow: hidden;
     z-index: 6;
+    pointer-events: none;
 }
 
 .car-sprite {
