@@ -509,9 +509,11 @@ function getAvailablePictureData() {
         });
     }
 
+    const excludedImages = new Set(['media/images/lykan_hypersport_0.png']);
+
     document.querySelectorAll('img').forEach((img) => {
         const src = img.getAttribute('src');
-        if (!src || urlMap.has(src)) return;
+        if (!src || urlMap.has(src) || excludedImages.has(src)) return;
         const alt = img.getAttribute('alt');
         urlMap.set(src, alt || '');
     });
