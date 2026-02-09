@@ -1065,6 +1065,7 @@ function resetGame(options = {}) {
     drawBoard();
     drawScoreOverlay();
     applyPreviewSettings();
+    drawSavedPiecePreview();
     updateMobileStartButton();
     updateMobileControlsVisibility();
     updatePauseButtonState();
