@@ -940,8 +940,6 @@ function update(time = 0) {
         speedElapsed += deltaTime;
         dropInterval = getSpeedAdjustedInterval();
         dropCounter += deltaTime;
-
-        console.log(dropInterval);
         
         if (dropCounter > dropInterval) {
             drop();
