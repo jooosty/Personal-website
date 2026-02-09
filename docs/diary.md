@@ -53,3 +53,48 @@
 ### What I want to do next
 
 - Adding a second game
+
+## 6 february 2026
+
+### Things i did today
+- Added a second game (minesweeper)
+- Added a car driving
+- Added a clicking on a car does something
+
+### time it took
+- 3 hours
+- 1 hour
+- 2 hours
+
+### What i learned
+- How to make a car drive across the screen with css and javascript
+
+### What I want to do next
+- Adding 2048 game
+- Add piece saving in tetris
+
+
+
+## 9 february 2026
+
+### Things i did today
+- Added a third game (2048)
+- Added piece saving in tetris
+- Added a picture gallery easter egg
+- Made tetris blocks pictures
+- Made tetris pieces fall faster the longer you play
+
+### time it took
+- 2 hours
+- 1 hour
+- 1 hour
+- 2 hours
+- 30 minutes
+
+### What i learned
+- How to make a picture gallery with javascript and css
+- How to make tetris pieces be images instead of colored blocks
+
+### What I want to do next
+
+- Adding a fourth game??
