@@ -31,6 +31,10 @@ let gameStarted = false;
 let isPaused = false;
 let dropCounter = 0;
 let dropInterval = 1000;
+let baseDropInterval = 1000;
+let speedElapsed = 0;
+const MIN_DROP_INTERVAL = 250;
+const SPEEDUP_PER_SECOND = 2;
 let lastTime = 0;
 
 function isHandheldDevice() {
@@ -58,21 +62,28 @@ const UNLOCKS = [
 function updateDropInterval() {
     switch (difficultyInput.value) {
         case '1': // Difficulty 1
-            dropInterval = 1400;
+            baseDropInterval = 1400;
             break;
         case '2': // Difficulty 2
-            dropInterval = 1200;
+            baseDropInterval = 1200;
             break;
         case '3': // Difficulty 3
-            dropInterval = 1000;
+            baseDropInterval = 1000;
             break;
         case '4': // Difficulty 4
-            dropInterval = 800;
+            baseDropInterval = 800;
             break;
         case '5': // Difficulty 5
-            dropInterval = 600;
+            baseDropInterval = 600;
             break;
     }
+    dropInterval = getSpeedAdjustedInterval();
+}
+
+function getSpeedAdjustedInterval() {
+    const adjustment = (speedElapsed / 1000) * SPEEDUP_PER_SECOND;
+    const next = baseDropInterval - adjustment;
+    return Math.max(MIN_DROP_INTERVAL, Math.floor(next));
 }
 
 function getDifficultyMultiplier() {
@@ -924,9 +935,13 @@ function update(time = 0) {
     }
     
     if (!gameOver && !isPaused) {
-        const deltaTime = time - lastTime;
+        const deltaTime = lastTime ? time - lastTime : 0;
         lastTime = time;
+        speedElapsed += deltaTime;
+        dropInterval = getSpeedAdjustedInterval();
         dropCounter += deltaTime;
+
+        console.log(dropInterval);
         
         if (dropCounter > dropInterval) {
             drop();
@@ -1031,6 +1046,8 @@ function resetGame(options = {}) {
     gameStarted = false;
     isPaused = false;
     dropCounter = 0;
+    speedElapsed = 0;
+    updateDropInterval();
     lastTime = 0;
     if (!keepScore) {
         unlockedSections.clear();
@@ -1109,6 +1126,8 @@ function startGame() {
     gameStarted = true;
     gameOver = false;
     isPaused = false;
+    speedElapsed = 0;
+    updateDropInterval();
     canvas.classList.remove('is-paused');
     currentPiece = getNextPiece();
     checkUnlocks(); // Check if score 0 unlocks anything
