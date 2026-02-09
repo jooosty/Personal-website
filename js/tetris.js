@@ -1266,10 +1266,13 @@ updateMobileControlsVisibility();
 if (typeof MutationObserver !== 'undefined') {
     const observer = new MutationObserver((mutations) => {
         mutations.forEach((mutation) => {
-            if (mutation.attributeName === 'class' && !gameStarted) {
-                drawBoard();
-                displayInstructions();
+            if (mutation.attributeName === 'class') {
+                if (!gameStarted) {
+                    drawBoard();
+                    displayInstructions();
+                }
                 updateNextPreview();
+                drawSavedPiecePreview();
             }
         });
     });

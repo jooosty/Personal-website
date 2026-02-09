@@ -672,7 +672,7 @@ main {
     gap: 18px;
     align-items: start;
     justify-content: center;
-        justify-items: center;
+    justify-items: center;
 }
 
 .next-preview {
@@ -686,7 +686,7 @@ main {
     align-items: center;
     min-width: 150px;
     position: relative;
-        z-index: 2;
+    z-index: 2;
     transition: background 0.3s ease, border 0.3s ease;
 }
 
