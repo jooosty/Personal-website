@@ -891,6 +891,12 @@ function savePiece() {
 function drawSavedPiecePreview() {
     const savedPreviewCanvas = document.getElementById('saved-piece-preview');
     if (!savedPreviewCanvas) return;
+    if (savedPreviewCanvas.width !== 120) {
+        savedPreviewCanvas.width = 120;
+    }
+    if (savedPreviewCanvas.height !== 120) {
+        savedPreviewCanvas.height = 120;
+    }
     const savedPreviewCtx = savedPreviewCanvas.getContext('2d');
     if (savedPiece) {
         drawNextPreview(savedPreviewCtx, savedPiece);
