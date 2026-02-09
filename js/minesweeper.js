@@ -1,3 +1,5 @@
+// inspiration from: https://codepen.io/SimonDiligues/pen/OPyxEpe
+
 class Minesweeper {
     constructor(rows = 8, cols = 8, mines = 10) {
         this.rows = rows;

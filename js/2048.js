@@ -1,3 +1,5 @@
+// inspiration from: https://codepen.io/tandaly/pen/mdpOKE
+
 class Game2048 {
     constructor() {
         this.grid = Array(4).fill(null).map(() => Array(4).fill(0));

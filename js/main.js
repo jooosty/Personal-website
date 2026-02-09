@@ -1,4 +1,5 @@
 const apiUrl = "https://fdnd.directus.app/items/person?filter[id]=297";
+const peopleApiUrl = "https://fdnd.directus.app/items/person?filter[squads][squad_id][tribe][name]=CMD%20Minor%20Web%20Dev&filter[squads][squad_id][cohort]=2526";
 
 // Store fetched data privately
 const apiData = {};
@@ -464,37 +465,58 @@ function handleScanSequence(key) {
     }, 1200);
 }
 
-function extractAvatarUrlsFromData(data) {
+function extractAvatarEntriesFromData(data) {
     const items = data && Array.isArray(data.data) ? data.data : [];
-    const urls = [];
+    const entries = [];
 
     items.forEach((item) => {
         if (!item || !item.avatar) return;
         const avatar = item.avatar;
+        const name = typeof item.name === 'string' ? item.name.trim() : '';
         if (typeof avatar === 'string' && avatar.trim()) {
-            urls.push(avatar.trim());
+            entries.push({ url: avatar.trim(), name });
             return;
+        }
+        if (typeof avatar === 'object' && avatar.id) {
+            entries.push({ url: `https://fdnd.directus.app/assets/${avatar.id}`, name });
         }
     });
 
-    return urls;
+    return entries;
 }
 
-function getAvailablePictureUrls() {
-    const urls = new Set();
-    const avatarData = window.avatarData;
+async function ensurePeopleData() {
+    if (window.peopleData) return window.peopleData;
+    try {
+        const response = await fetch(peopleApiUrl);
+        if (!response.ok) throw new Error('Network response was not ok');
+        const data = await response.json();
+        window.peopleData = data;
+        return data;
+    } catch (error) {
+        console.error('Failed to load people data:', error);
+        return null;
+    }
+}
+
+function getAvailablePictureData() {
+    const urlMap = new Map();
+    const avatarData = window.peopleData || window.avatarData;
     if (avatarData) {
-        extractAvatarUrlsFromData(avatarData).forEach((url) => urls.add(url));
+        extractAvatarEntriesFromData(avatarData).forEach((entry) => {
+            if (!entry.url) return;
+            urlMap.set(entry.url, entry.name || '');
+        });
     }
 
     document.querySelectorAll('img').forEach((img) => {
         const src = img.getAttribute('src');
-        if (src) {
-            urls.add(src);
-        }
+        if (!src || urlMap.has(src)) return;
+        const alt = img.getAttribute('alt');
+        urlMap.set(src, alt || '');
     });
 
-    return Array.from(urls);
+    return Array.from(urlMap.entries()).map(([url, name]) => ({ url, name }));
 }
 
 function closePictureGallery() {
@@ -508,13 +530,17 @@ function closePictureGallery() {
     document.body.classList.remove('no-scroll');
 }
 
-function showPictureGallery() {
+async function showPictureGallery() {
     if (pictureOverlay) {
         closePictureGallery();
         return;
     }
 
-    const urls = getAvailablePictureUrls();
+    if (!window.peopleData) {
+        await ensurePeopleData();
+    }
+
+    const pictures = getAvailablePictureData();
 
     const overlay = document.createElement('div');
     overlay.className = 'picture-gallery';
@@ -541,17 +567,24 @@ function showPictureGallery() {
     const grid = document.createElement('div');
     grid.className = 'picture-gallery__grid';
 
-    if (urls.length) {
-        urls.forEach((url) => {
+    if (pictures.length) {
+        pictures.forEach((picture) => {
             const item = document.createElement('div');
             item.className = 'picture-gallery__item';
 
             const img = document.createElement('img');
-            img.src = url;
+            img.src = picture.url;
             img.alt = 'Picture preview';
             img.loading = 'lazy';
 
+            const label = document.createElement('span');
+            label.className = 'picture-gallery__name';
+            label.textContent = picture.name || '';
+
             item.appendChild(img);
+            if (picture.name) {
+                item.appendChild(label);
+            }
             grid.appendChild(item);
         });
     } else {
@@ -583,11 +616,11 @@ function showPictureGallery() {
     pictureOverlay = overlay;
 }
 
-function handlePictureSequence(key) {
+async function handlePictureSequence(key) {
     if (key === pictureSequence[pictureIndex]) {
         pictureIndex += 1;
         if (pictureIndex === pictureSequence.length) {
-            showPictureGallery();
+            await showPictureGallery();
             pictureIndex = 0;
         }
     } else {

@@ -386,6 +386,7 @@ body.mine-shake {
 
 .picture-gallery__item {
     display: grid;
+    gap: 8px;
     place-items: center;
     padding: 8px;
     border-radius: 12px;
@@ -400,6 +401,13 @@ body.mine-shake {
     border-radius: 10px;
 }
 
+.picture-gallery__name {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    text-align: center;
+    word-break: break-word;
+}
 .picture-gallery__empty {
     color: var(--text-primary);
     font-weight: 600;
