@@ -11,7 +11,8 @@ const difficultyWrapper = document.querySelector('.tetris-difficulty');
 const mobileStartButton = document.getElementById('mobile-start');
 const pauseToggleButton = document.getElementById('pause-toggle');
 const unlockAllButton = document.getElementById('unlock-all');
-const blockStyleButtons = document.querySelectorAll('.block-style-btn');
+const blockStyleButtons = document.querySelectorAll('.block-style-btn[data-style]');
+const speedToggleButton = document.getElementById('speed-toggle');
 const tetrisAudio = document.getElementById('tetris-audio');
 const lineClearAudio = document.getElementById('tetris-line-clear');
 const unlockAudio = document.getElementById('unlock-audio');
@@ -33,6 +34,7 @@ let dropCounter = 0;
 let dropInterval = 1000;
 let baseDropInterval = 1000;
 let speedElapsed = 0;
+let speedupEnabled = true;
 const MIN_DROP_INTERVAL = 250;
 const SPEEDUP_PER_SECOND = 2;
 let lastTime = 0;
@@ -81,6 +83,9 @@ function updateDropInterval() {
 }
 
 function getSpeedAdjustedInterval() {
+    if (!speedupEnabled) {
+        return baseDropInterval;
+    }
     const adjustment = (speedElapsed / 1000) * SPEEDUP_PER_SECOND;
     const next = baseDropInterval - adjustment;
     return Math.max(MIN_DROP_INTERVAL, Math.floor(next));
@@ -102,6 +107,13 @@ function updateUnlockBadges() {
         if (!unlock) return;
         badge.textContent = `Unlock at ${unlock.score * parseInt(difficultyInput.value)} pts`;
     });
+}
+
+function updateSpeedToggleState() {
+    if (!speedToggleButton) return;
+    speedToggleButton.textContent = speedupEnabled ? 'On' : 'Off';
+    speedToggleButton.classList.toggle('is-active', speedupEnabled);
+    speedToggleButton.setAttribute('aria-pressed', speedupEnabled ? 'true' : 'false');
 }
 
 updateUnlockBadges();
@@ -937,7 +949,9 @@ function update(time = 0) {
     if (!gameOver && !isPaused) {
         const deltaTime = lastTime ? time - lastTime : 0;
         lastTime = time;
-        speedElapsed += deltaTime;
+        if (speedupEnabled) {
+            speedElapsed += deltaTime;
+        }
         dropInterval = getSpeedAdjustedInterval();
         dropCounter += deltaTime;
         
@@ -1047,6 +1061,7 @@ function resetGame(options = {}) {
     speedElapsed = 0;
     updateDropInterval();
     lastTime = 0;
+    updateSpeedToggleState();
     if (!keepScore) {
         unlockedSections.clear();
     }
@@ -1253,6 +1268,14 @@ if (pauseToggleButton) {
     });
 }
 
+if (speedToggleButton) {
+    speedToggleButton.addEventListener('click', () => {
+        speedupEnabled = !speedupEnabled;
+        dropInterval = getSpeedAdjustedInterval();
+        updateSpeedToggleState();
+    });
+}
+
 if (unlockAllButton) {
     unlockAllButton.addEventListener('click', () => {
         unlockAllSections();
@@ -1268,6 +1291,7 @@ blockStyleButtons.forEach((button) => {
 // Initialize
 resetGame();
 applyBlockStyle('avatars');
+updateSpeedToggleState();
 
 // Display instructions with theme awareness
 function displayInstructions() {
