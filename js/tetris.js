@@ -27,6 +27,7 @@ canvas.height = ROWS * BLOCK_SIZE;
 // Game state
 let score = 0;
 let externalUnlockScore = 0;
+let leaderboardRecorded = false;
 let gameOver = false;
 let gameStarted = false;
 let isPaused = false;
@@ -364,6 +365,14 @@ function setTetrisScore(value) {
     checkUnlocks();
 }
 
+function recordFinalScore() {
+    if (leaderboardRecorded || !gameOver) return;
+    if (typeof window.recordLeaderboardScore === 'function') {
+        window.recordLeaderboardScore('tetris', score);
+        leaderboardRecorded = true;
+    }
+}
+
 function getTetrisScore() {
     return score;
 }
@@ -388,7 +397,7 @@ window.getTetrisScore = getTetrisScore;
 window.setTetrisPaused = setTetrisPaused;
 
 if (typeof window.getSharedScore === 'function') {
-    setTetrisScore(window.getSharedScore());
+    setTetrisScore(window.getSharedScore('tetris'));
 }
 
 function unlockAllSections() {
@@ -851,12 +860,14 @@ function drop() {
         clearLines();
         thisTurnSaved = false;
         if (gameOver) {
+            recordFinalScore();
             return;
         }
         
         currentPiece = getNextPiece();
         if (collide()) {
             gameOver = true;
+            recordFinalScore();
         }
     }
     dropCounter = 0;
@@ -1049,6 +1060,7 @@ function drawGameOver() {
 // Reset game
 function resetGame(options = {}) {
     const { keepScore = false } = options;
+    recordFinalScore();
     board.forEach(row => row.fill(0));
     if (!keepScore) {
         score = 0;
@@ -1056,6 +1068,7 @@ function resetGame(options = {}) {
     scoreElement.textContent = score;
     gameOver = false;
     gameStarted = false;
+    leaderboardRecorded = false;
     isPaused = false;
     dropCounter = 0;
     speedElapsed = 0;
@@ -1138,6 +1151,7 @@ function startGame() {
     
     gameStarted = true;
     gameOver = false;
+    leaderboardRecorded = false;
     isPaused = false;
     speedElapsed = 0;
     updateDropInterval();

@@ -118,6 +118,7 @@ function init2048() {
     statusEl.textContent = '';
     scoreEl.closest('.game-info')?.appendChild(statusEl);
     let suppressSharedSync = false;
+    let leaderboardRecorded = false;
 
     function set2048Score(value) {
         const numeric = Number(value);
@@ -156,12 +157,19 @@ function init2048() {
                 index += 1;
             }
         }
-        scoreEl.textContent = String(game.getScore());
+        const currentScore = game.getScore();
+        scoreEl.textContent = String(currentScore);
         statusEl.textContent = game.isGameOver() ? 'Game over' : '';
-        if (!suppressSharedSync && typeof window.setSharedScore === 'function') {
-            window.setSharedScore(game.getScore(), '2048');
-        } else if (!suppressSharedSync && typeof window.setExternalUnlockScore === 'function') {
-            window.setExternalUnlockScore(game.getScore());
+        if (!suppressSharedSync) {
+            if (typeof window.setSharedScore === 'function') {
+                window.setSharedScore(currentScore, '2048');
+            } else if (typeof window.setExternalUnlockScore === 'function') {
+                window.setExternalUnlockScore(currentScore);
+            }
+        }
+        if (game.isGameOver() && !leaderboardRecorded && typeof window.recordLeaderboardScore === 'function') {
+            window.recordLeaderboardScore('2048', currentScore);
+            leaderboardRecorded = true;
         }
     }
 
@@ -225,8 +233,13 @@ function init2048() {
     });
 
     resetBtn.addEventListener('click', () => {
-        const keepScore = game.isGameOver();
+        const keepScore = false;
+        if (game.isGameOver() && !leaderboardRecorded && typeof window.recordLeaderboardScore === 'function') {
+            window.recordLeaderboardScore('2048', game.getScore());
+            leaderboardRecorded = true;
+        }
         game.reset(keepScore);
+        leaderboardRecorded = false;
         statusEl.textContent = '';
         render();
     });
@@ -235,7 +248,7 @@ function init2048() {
     window.get2048Score = get2048Score;
 
     if (typeof window.getSharedScore === 'function') {
-        set2048Score(window.getSharedScore());
+        set2048Score(window.getSharedScore('2048'));
     }
 }
 

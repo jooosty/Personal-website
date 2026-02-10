@@ -102,11 +102,32 @@
     </div>
 </div>
 
+        <section id="leaderboard" class="leaderboard is-hidden" hidden>
+            <h1>Leaderboard</h1>
+            <div class="leaderboard-grid">
+                <div class="leaderboard-card" data-game="tetris">
+                    <h2>Tetris</h2>
+                    <ol id="leaderboard-tetris" class="leaderboard-list"></ol>
+                </div>
+                <div class="leaderboard-card" data-game="minesweeper">
+                    <h2>Minesweeper</h2>
+                    <ol id="leaderboard-minesweeper" class="leaderboard-list"></ol>
+                </div>
+                <div class="leaderboard-card" data-game="2048">
+                    <h2>2048</h2>
+                    <ol id="leaderboard-2048" class="leaderboard-list"></ol>
+                </div>
+            </div>
+        </section>
+
         <!-- About Me Section -->
         <div class="about-me">
-            
-
-            <h1>About Me</h1>
+            <div class="about-header">
+                <h1>About Me</h1>
+                <div class="about-total" aria-label="Total score">
+                    Total: <span id="total-score">0</span>
+                </div>
+            </div>
             <div id="section-name">
                 <h2>Name <span class="unlock-badge" data-section="name">Unlock at -- pts</span></h2>
                 <p id="name" class="locked"></p>

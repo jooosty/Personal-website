@@ -109,6 +109,7 @@ function initMinesweeper() {
     let statusEl = null;
     let score = 0;
     let scored = [];
+    let leaderboardRecorded = false;
 
     if (infoEl) {
         statusEl = infoEl.querySelector('.minesweeper-status');
@@ -157,6 +158,7 @@ function initMinesweeper() {
         const { size, mines } = getCurrentSettings();
         game = new Minesweeper(size, size, mines);
         isGameOver = false;
+        leaderboardRecorded = false;
         const cellSize = getCellSizeValue();
         boardEl.style.gridTemplateColumns = `repeat(${game.cols}, ${cellSize}px)`;
         scored = Array.from({ length: game.rows }, () => Array(game.cols).fill(false));
@@ -363,6 +365,11 @@ function initMinesweeper() {
             setStatus('', '');
         }
 
+        if (isGameOver && !leaderboardRecorded && typeof window.recordLeaderboardScore === 'function') {
+            window.recordLeaderboardScore('minesweeper', score);
+            leaderboardRecorded = true;
+        }
+
         renderBoard();
 
         const renderedCell = getRenderedCell(row, col);
@@ -398,13 +405,21 @@ function initMinesweeper() {
 
     if (resetButton) {
         resetButton.addEventListener('click', () => {
-            createGameFromSettings({ keepScore: true });
+            if (isGameOver && !leaderboardRecorded && typeof window.recordLeaderboardScore === 'function') {
+                window.recordLeaderboardScore('minesweeper', score);
+                leaderboardRecorded = true;
+            }
+            createGameFromSettings({ keepScore: false });
         });
     }
 
     if (sizeInput) {
         sizeInput.addEventListener('input', () => {
             updateControlLabels();
+            if (isGameOver && !leaderboardRecorded && typeof window.recordLeaderboardScore === 'function') {
+                window.recordLeaderboardScore('minesweeper', score);
+                leaderboardRecorded = true;
+            }
             createGameFromSettings({ keepScore: true });
         });
     }
@@ -412,6 +427,10 @@ function initMinesweeper() {
     if (difficultyInput) {
         difficultyInput.addEventListener('input', () => {
             updateControlLabels();
+            if (isGameOver && !leaderboardRecorded && typeof window.recordLeaderboardScore === 'function') {
+                window.recordLeaderboardScore('minesweeper', score);
+                leaderboardRecorded = true;
+            }
             createGameFromSettings({ keepScore: true });
         });
     }
@@ -429,7 +448,7 @@ function initMinesweeper() {
     window.getMinesweeperScore = getMinesweeperScore;
 
     if (typeof window.getSharedScore === 'function') {
-        setMinesweeperScore(window.getSharedScore());
+        setMinesweeperScore(window.getSharedScore('minesweeper'));
     }
 }
 

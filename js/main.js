@@ -5,36 +5,124 @@ const peopleApiUrl = "https://fdnd.directus.app/items/person?filter[squads][squa
 const apiData = {};
 
 // Shared score state across games.
-const sharedScoreState = { value: 0 };
+const sharedScoreState = { tetris: 0, minesweeper: 0, '2048': 0, total: 0 };
+const totalScoreEl = document.getElementById('total-score');
+const LEADERBOARD_STORAGE_KEY = 'leaderboard-scores-v1';
+const LEADERBOARD_GAMES = ['tetris', 'minesweeper', '2048'];
 
 function normalizeSharedScore(value) {
     const numeric = Number(value);
     return Number.isFinite(numeric) ? Math.max(0, Math.floor(numeric)) : 0;
 }
 
-function applySharedScore(source) {
-    if (source !== 'tetris' && typeof window.setTetrisScore === 'function') {
-        window.setTetrisScore(sharedScoreState.value);
-    }
-    if (source !== 'minesweeper' && typeof window.setMinesweeperScore === 'function') {
-        window.setMinesweeperScore(sharedScoreState.value);
-    }
-    if (source !== '2048' && typeof window.set2048Score === 'function') {
-        window.set2048Score(sharedScoreState.value);
+function updateSharedTotal() {
+    sharedScoreState.total =
+        sharedScoreState.tetris +
+        sharedScoreState.minesweeper +
+        sharedScoreState['2048'];
+    if (totalScoreEl) {
+        totalScoreEl.textContent = String(sharedScoreState.total);
     }
     if (typeof window.setExternalUnlockScore === 'function') {
-        window.setExternalUnlockScore(sharedScoreState.value);
+        window.setExternalUnlockScore(sharedScoreState.total);
     }
 }
 
 window.setSharedScore = function setSharedScore(value, source) {
-    sharedScoreState.value = normalizeSharedScore(value);
-    applySharedScore(source);
+    if (!source || !(source in sharedScoreState)) return;
+    sharedScoreState[source] = normalizeSharedScore(value);
+    updateSharedTotal();
 };
 
-window.getSharedScore = function getSharedScore() {
-    return sharedScoreState.value;
+window.getSharedScore = function getSharedScore(source) {
+    if (source && source in sharedScoreState) {
+        return sharedScoreState[source];
+    }
+    return sharedScoreState.total;
 };
+
+window.getTotalScore = function getTotalScore() {
+    return sharedScoreState.total;
+};
+
+updateSharedTotal();
+
+function normalizeLeaderboardEntry(value) {
+    const numeric = Number(value);
+    if (!Number.isFinite(numeric)) return null;
+    return Math.max(0, Math.floor(numeric));
+}
+
+function loadLeaderboard() {
+    let stored = null;
+    try {
+        stored = JSON.parse(localStorage.getItem(LEADERBOARD_STORAGE_KEY));
+    } catch (error) {
+        stored = null;
+    }
+
+    const leaderboard = {};
+    LEADERBOARD_GAMES.forEach((game) => {
+        const entries = Array.isArray(stored?.[game]) ? stored[game] : [];
+        const cleaned = entries
+            .map(normalizeLeaderboardEntry)
+            .filter((value) => Number.isFinite(value));
+        cleaned.sort((a, b) => b - a);
+        leaderboard[game] = cleaned.slice(0, 10);
+    });
+
+    return leaderboard;
+}
+
+let leaderboardState = loadLeaderboard();
+
+function saveLeaderboard() {
+    localStorage.setItem(LEADERBOARD_STORAGE_KEY, JSON.stringify(leaderboardState));
+}
+
+function renderLeaderboard() {
+    LEADERBOARD_GAMES.forEach((game) => {
+        const list = document.getElementById(`leaderboard-${game}`);
+        if (!list) return;
+        list.innerHTML = '';
+        const scores = leaderboardState[game] || [];
+        if (!scores.length) {
+            const item = document.createElement('li');
+            item.textContent = 'No scores yet';
+            list.appendChild(item);
+            return;
+        }
+        scores.forEach((score) => {
+            const item = document.createElement('li');
+            item.textContent = String(score);
+            list.appendChild(item);
+        });
+    });
+}
+
+function recordLeaderboardScore(game, value) {
+    if (!LEADERBOARD_GAMES.includes(game)) return;
+    const score = normalizeLeaderboardEntry(value);
+    if (!Number.isFinite(score) || score <= 0) return;
+    const current = leaderboardState[game] || [];
+    const next = [...current, score].sort((a, b) => b - a).slice(0, 10);
+    const changed = next.length !== current.length || next.some((entry, index) => entry !== current[index]);
+    if (!changed) return;
+    leaderboardState = { ...leaderboardState, [game]: next };
+    saveLeaderboard();
+    renderLeaderboard();
+}
+
+window.recordLeaderboardScore = recordLeaderboardScore;
+window.renderLeaderboard = renderLeaderboard;
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+        renderLeaderboard();
+    });
+} else {
+    renderLeaderboard();
+}
 
 // Lorem Ipsum text for generating placeholders
 const loremWords = ['Lorem', 'ipsum', 'dolor', 'sit', 'amet', 'consectetur', 'adipiscing', 'elit', 'sed', 'do', 'eiusmod', 'tempor', 'incididunt', 'ut', 'labore', 'et', 'dolore', 'magna', 'aliqua', 'enim', 'ad', 'minim', 'veniam', 'quis', 'nostrud', 'exercitation', 'ullamco', 'laboris', 'nisi'];
@@ -272,6 +360,11 @@ let tetrisTimeoutId = null;
 const scanSequence = ['s', 'c', 'a', 'n'];
 let scanIndex = 0;
 let scanTimeoutId = null;
+const leaderboardSequence = ['l', 'b'];
+let leaderboardIndex = 0;
+let leaderboardTimeoutId = null;
+let leaderboardOverlay = null;
+let leaderboardEscapeHandler = null;
 const pictureSequence = ['p', 'i', 'c', 't', 'u', 'r', 'e'];
 let pictureIndex = 0;
 let pictureTimeoutId = null;
@@ -280,6 +373,8 @@ let pictureEscapeHandler = null;
 let zHoldTimer = null;
 let zTriggered = false;
 let scrollLockTimeoutId = null;
+const leaderboardSection = document.getElementById('leaderboard');
+const leaderboardHome = leaderboardSection ? leaderboardSection.parentElement : null;
 
 function setScrollLock(durationMs) {
     document.body.classList.add('no-scroll');
@@ -462,6 +557,100 @@ function handleScanSequence(key) {
 
     scanTimeoutId = setTimeout(() => {
         scanIndex = 0;
+    }, 1200);
+}
+
+function closeLeaderboardOverlay() {
+    if (!leaderboardOverlay) return;
+    if (leaderboardEscapeHandler) {
+        document.removeEventListener('keydown', leaderboardEscapeHandler);
+        leaderboardEscapeHandler = null;
+    }
+    if (leaderboardSection && leaderboardHome) {
+        leaderboardSection.hidden = true;
+        leaderboardSection.classList.add('is-hidden');
+        leaderboardHome.appendChild(leaderboardSection);
+    }
+    leaderboardOverlay.remove();
+    leaderboardOverlay = null;
+    document.body.classList.remove('no-scroll');
+}
+
+function showLeaderboardOverlay() {
+    if (!leaderboardSection || !leaderboardHome) return;
+    if (leaderboardOverlay) {
+        closeLeaderboardOverlay();
+        return;
+    }
+
+    leaderboardSection.hidden = false;
+    leaderboardSection.classList.remove('is-hidden');
+
+    const overlay = document.createElement('div');
+    overlay.className = 'leaderboard-overlay';
+
+    const panel = document.createElement('div');
+    panel.className = 'leaderboard-panel';
+
+    const header = document.createElement('div');
+    header.className = 'leaderboard-header';
+
+    const title = document.createElement('h2');
+    title.textContent = 'Leaderboard';
+
+    const closeBtn = document.createElement('button');
+    closeBtn.type = 'button';
+    closeBtn.className = 'leaderboard-close';
+    closeBtn.setAttribute('aria-label', 'Close leaderboard');
+    closeBtn.textContent = 'Close';
+    closeBtn.addEventListener('click', closeLeaderboardOverlay);
+
+    header.appendChild(title);
+    header.appendChild(closeBtn);
+
+    panel.appendChild(header);
+    panel.appendChild(leaderboardSection);
+    overlay.appendChild(panel);
+
+    overlay.addEventListener('click', (event) => {
+        if (event.target === overlay) {
+            closeLeaderboardOverlay();
+        }
+    });
+
+    leaderboardEscapeHandler = (event) => {
+        if (event.key === 'Escape') {
+            closeLeaderboardOverlay();
+        }
+    };
+    document.addEventListener('keydown', leaderboardEscapeHandler);
+
+    document.body.appendChild(overlay);
+    document.body.classList.add('no-scroll');
+    leaderboardOverlay = overlay;
+
+    if (typeof window.renderLeaderboard === 'function') {
+        window.renderLeaderboard();
+    }
+}
+
+function handleLeaderboardSequence(key) {
+    if (key === leaderboardSequence[leaderboardIndex]) {
+        leaderboardIndex += 1;
+        if (leaderboardIndex === leaderboardSequence.length) {
+            showLeaderboardOverlay();
+            leaderboardIndex = 0;
+        }
+    } else {
+        leaderboardIndex = key === leaderboardSequence[0] ? 1 : 0;
+    }
+
+    if (leaderboardTimeoutId) {
+        clearTimeout(leaderboardTimeoutId);
+    }
+
+    leaderboardTimeoutId = setTimeout(() => {
+        leaderboardIndex = 0;
     }, 1200);
 }
 
@@ -650,6 +839,7 @@ document.addEventListener('keydown', (e) => {
         handleRollSequence(e.key.toLowerCase());
         handleTetrisSequence(e.key.toLowerCase());
         handleScanSequence(e.key.toLowerCase());
+        handleLeaderboardSequence(e.key.toLowerCase());
         handlePictureSequence(e.key.toLowerCase());
     }
 
