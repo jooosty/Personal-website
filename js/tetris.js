@@ -17,6 +17,70 @@ const tetrisAudio = document.getElementById('tetris-audio');
 const lineClearAudio = document.getElementById('tetris-line-clear');
 const unlockAudio = document.getElementById('unlock-audio');
 
+const tetrisSequence = ['t', 'e', 't', 'r', 'i', 's'];
+let tetrisIndex = 0;
+let tetrisTimeoutId = null;
+
+function triggerTetrisConfetti() {
+    if (typeof window.setScrollLock === 'function') {
+        window.setScrollLock(4500);
+    } else {
+        document.body.classList.add('no-scroll');
+        setTimeout(() => {
+            document.body.classList.remove('no-scroll');
+        }, 4500);
+    }
+
+    const layer = document.createElement('div');
+    layer.className = 'tetris-confetti-layer';
+
+    const colors = ['#00f0f0', '#f0f000', '#a000f0', '#00f000', '#f00000', '#0000f0', '#f0a000'];
+    const fragment = document.createDocumentFragment();
+    for (let i = 0; i < 1000; i += 1) {
+        const confetti = document.createElement('span');
+        confetti.className = 'tetris-confetti';
+        const x = Math.random() * 100;
+        const delay = (Math.random() * 0.8).toFixed(2);
+        const duration = (2.5 + Math.random() * 2).toFixed(2);
+        const size = 10 + Math.floor(Math.random() * 10);
+        const rotate = Math.floor(Math.random() * 360);
+        confetti.style.setProperty('--x', `${x}vw`);
+        confetti.style.setProperty('--delay', `${delay}s`);
+        confetti.style.setProperty('--duration', `${duration}s`);
+        confetti.style.setProperty('--size', `${size}px`);
+        confetti.style.setProperty('--rotate', `${rotate}deg`);
+        confetti.style.background = colors[i % colors.length];
+        fragment.appendChild(confetti);
+    }
+
+    layer.appendChild(fragment);
+    document.body.appendChild(layer);
+
+    setTimeout(() => {
+        layer.remove();
+    }, 4500);
+}
+
+function handleTetrisSequence(key) {
+    if (key === tetrisSequence[tetrisIndex]) {
+        tetrisIndex += 1;
+        if (tetrisIndex === tetrisSequence.length) {
+            triggerTetrisConfetti();
+            tetrisIndex = 0;
+        }
+    } else {
+        tetrisIndex = key === tetrisSequence[0] ? 1 : 0;
+    }
+
+    if (tetrisTimeoutId) {
+        clearTimeout(tetrisTimeoutId);
+    }
+
+    tetrisTimeoutId = setTimeout(() => {
+        tetrisIndex = 0;
+    }, 1200);
+}
+
 // Set canvas size
 const BLOCK_SIZE = 30;
 const ROWS = 20;
@@ -1207,6 +1271,10 @@ function startGame() {
 
 // Keyboard controls
 document.addEventListener('keydown', (e) => {
+    if (e.key && /^[a-z]$/i.test(e.key)) {
+        handleTetrisSequence(e.key.toLowerCase());
+    }
+
     if (gameStarted && ['ArrowLeft', 'ArrowRight', 'ArrowDown', 'ArrowUp', ' '].includes(e.key)) {
         e.preventDefault();
     }
@@ -1384,16 +1452,14 @@ if (typeof MutationObserver !== 'undefined') {
 }
 
 
-// Get all avatar data from api
-async function getAvatarData() {
+// Load avatars for Tetris blocks using shared people data.
+async function hydrateAvatarImages() {
     try {
-        const response = await fetch(
-            'https://fdnd.directus.app/items/person?fields=avatar&filter[squads][squad_id][tribe][name]=CMD%20Minor%20Web%20Dev&filter[squads][squad_id][cohort]=2526');
-        if (!response.ok) {
-            throw new Error('Network response was not ok');
-        }
-        const data = await response.json();
-        window.avatarData = data;
+        const data = typeof window.ensurePeopleData === 'function'
+            ? await window.ensurePeopleData()
+            : (window.peopleData || window.avatarData || null);
+        if (!data) return;
+
         const avatarUrls = extractAvatarUrls(data);
         avatarCount = avatarUrls.length;
         const images = await loadAvatarImages(avatarUrls);
@@ -1418,10 +1484,9 @@ async function getAvatarData() {
         } else {
             draw();
         }
-    }
-    catch (error) {
-        console.error('Error fetching data:', error);
+    } catch (error) {
+        console.error('Error loading avatars:', error);
     }
 }
 
-getAvatarData();
+hydrateAvatarImages();
