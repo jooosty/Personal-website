@@ -375,6 +375,13 @@ let zTriggered = false;
 let scrollLockTimeoutId = null;
 const leaderboardSection = document.getElementById('leaderboard');
 const leaderboardHome = leaderboardSection ? leaderboardSection.parentElement : null;
+const leaderboardToggle = document.getElementById('leaderboard-toggle');
+
+if (leaderboardToggle) {
+    leaderboardToggle.addEventListener('click', () => {
+        showLeaderboardOverlay();
+    });
+}
 
 function setScrollLock(durationMs) {
     document.body.classList.add('no-scroll');

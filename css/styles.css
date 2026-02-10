@@ -414,7 +414,6 @@ body.mine-shake {
     text-align: center;
     margin: auto;
 }
-
 .leaderboard-overlay {
     position: fixed;
     inset: 0;
@@ -747,6 +746,32 @@ header h1 {
 
 .theme-toggle:active .theme-icon {
     transform: rotate(180deg);
+}
+
+/* Hidden Leaderboard Toggle */
+.leaderboard-toggle {
+    position: fixed;
+    top: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 10020;
+    min-width: 140px;
+    height: 36px;
+    padding: 0 16px;
+    border-radius: 999px;
+    border: 1px solid transparent;
+    background: rgba(0, 0, 0, 0.2);
+    color: var(--text-primary);
+    font-weight: 600;
+    letter-spacing: 0.3px;
+    opacity: 0;
+    transition: opacity 0.2s ease, box-shadow 0.2s ease;
+}
+
+.leaderboard-toggle:hover,
+.leaderboard-toggle:focus-visible {
+    opacity: 1;
+    box-shadow: 0 0 16px var(--accent-glow);
 }
 
 /* Main layout */
@@ -1160,7 +1185,6 @@ main {
 .score-display {
     display: none;
 }
-
 .leaderboard {
     width: 100%;
     max-width: 1100px;
@@ -1598,34 +1622,11 @@ body.light-mode .leaderboard-card {
     transition: background 0.3s ease, border 0.3s ease;
     }
 
-.about-header {
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 30px;
-}
-
-.about-total {
-    position: absolute;
-    top: 0;
-    right: 0;
-    background: var(--badge-bg);
-    border: 2px solid var(--badge-border);
-    color: var(--text-primary);
-    padding: 6px 12px;
-    border-radius: 999px;
-    font-weight: 700;
-    font-size: 0.85rem;
-    letter-spacing: 0.3px;
-    box-shadow: 0 0 10px var(--accent-glow);
-}
-
 
 .about-me h1 {
     color: var(--accent-color);
     text-align: center;
-    margin-bottom: 0;
+    margin-bottom: 30px;
     font-size: 2rem;
     text-shadow: 0 0 20px var(--accent-glow);
     transition: color 0.3s ease;
