@@ -202,13 +202,49 @@ let useAvatarBlocks = true;
 
 function getRandomAvatarImage() {
     if (!avatarImages.length) return null;
-    const image = avatarImages[avatarImageIndex % avatarImages.length];
-    avatarImageIndex += 1;
-    return image || null;
+    const randomIndex = Math.floor(Math.random() * avatarImages.length);
+    return avatarImages[randomIndex] || null;
 }
 
 function buildImageMatrix(matrix) {
-    return matrix.map((row) => row.map((cell) => (cell ? getRandomAvatarImage() : null)));
+    if (!matrix || !matrix.length) return [];
+    const availableImages = avatarImages.filter(Boolean);
+    if (!availableImages.length) {
+        return matrix.map((row) => row.map((cell) => (cell ? null : null)));
+    }
+
+    const pool = [...availableImages];
+    for (let i = pool.length - 1; i > 0; i -= 1) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [pool[i], pool[j]] = [pool[j], pool[i]];
+    }
+
+    const used = new Set();
+    let poolIndex = 0;
+
+    const nextUniqueImage = () => {
+        if (used.size < availableImages.length) {
+            while (poolIndex < pool.length) {
+                const candidate = pool[poolIndex];
+                poolIndex += 1;
+                if (candidate && !used.has(candidate)) {
+                    used.add(candidate);
+                    return candidate;
+                }
+            }
+
+            const remaining = availableImages.filter((img) => !used.has(img));
+            if (remaining.length) {
+                const fallback = remaining[Math.floor(Math.random() * remaining.length)];
+                used.add(fallback);
+                return fallback;
+            }
+        }
+
+        return availableImages[Math.floor(Math.random() * availableImages.length)] || null;
+    };
+
+    return matrix.map((row) => row.map((cell) => (cell ? nextUniqueImage() : null)));
 }
 
 function rotateMatrixClockwise(matrix) {
