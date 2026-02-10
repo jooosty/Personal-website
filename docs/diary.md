@@ -98,3 +98,27 @@
 ### What I want to do next
 
 - Adding a fourth game??
+
+
+## 10 february 2026
+
+### Things i did today
+- Added testing functionality to the website
+- Added picture genrate randomize not in order
+- Added leaderboard functionality to the games
+- Added button to turn on/off tetris speed increase
+- Changed file structure
+
+### time it took
+- 2 hours
+- 1 hour
+- 2 hours
+- 30 minutes
+- 1 hour
+
+### What i learned
+- How to make a test page using javascript and html
+- How to make a leaderboard using javascript
+
+### What I want to do next
+- Adding a fourth game??
