@@ -1594,7 +1594,8 @@ body.light-mode .leaderboard-card {
     z-index: 2;
 }
 
-/* Minesweeper */
+/* MARK: Minesweeper 
+*/
 .minesweeper-section {
     display: flex;
     flex-direction: column;
