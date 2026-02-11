@@ -74,6 +74,63 @@
 - Add piece saving in tetris
 
 
+# Week 1 Summary (4 – 6 February 2026)
+
+## What I Did This Week
+
+This week I focused on improving my website and expanding my game features, mainly working on Tetris and adding new interactive elements.
+
+### Game Development
+
+I improved and expanded my Tetris game by:
+- Adding a difficulty slider
+- Adding audio and sound effects
+- Creating a dark mode toggle
+- Planning a piece-saving feature
+- Planning a difficulty system that unlocks sections based on score
+
+I also:
+- Added a second game (Minesweeper)
+- Started working on a car driving animation
+- Made the car interactive when clicked
+- Planned to add a 2048 game next
+
+### Website Improvements
+
+- Created a Tetris “About Me” functionality
+- Added the programming languages I like to both the API and frontend
+- Switched from my own API to the school API
+- Improved the overall styling of the website
+- Built a handheld/mobile version to make the site responsive
+- Added some fun easter eggs
+
+![Dark mode](image.png)
+![Light mode](image-1.png)
+![Phone mode](image-2.png)
+
+## Time Invested
+
+In total, I spent approximately 16 hours working on development across these three days.
+
+## What I Learned
+
+This week I learned:
+- How to create small animations with CSS
+- How to work with CSS variables
+- How to build a dark mode toggle using JavaScript and CSS
+- How to make a website responsive for both desktop and mobile
+- How to animate movement (like a car driving across the screen) using CSS and JavaScript
+
+## What I Want to Do Next
+
+- Add a 2048 game
+- Implement piece saving in Tetris
+- Expand the difficulty system
+- Continue improving interactivity and features
+
+
+
+
 
 ## 9 february 2026
 
